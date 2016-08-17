@@ -19,12 +19,17 @@ class SignUpVC: UIViewController, UINavigationControllerDelegate, UIImagePickerC
 
     let imagePicker = UIImagePickerController()
     var keys = NSDictionary()
+    var profileImage: UIImage?
+    var profileImageChanged: Bool?
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
     }
-
+    
+    override func viewDidDisappear(animated: Bool) {
+        profileImageChanged = false
+    }
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
@@ -32,8 +37,9 @@ class SignUpVC: UIViewController, UINavigationControllerDelegate, UIImagePickerC
     
     func imagePickerController(picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : AnyObject]) {
         if let pickedImage = info[UIImagePickerControllerOriginalImage] as? UIImage {
+            profileImageChanged = true
             profileImageView.image = pickedImage
-            uploadImageToCloudinary(pickedImage)
+            profileImage = pickedImage
         }
         self.dismissViewControllerAnimated(true, completion: nil)
     }
@@ -60,14 +66,21 @@ class SignUpVC: UIViewController, UINavigationControllerDelegate, UIImagePickerC
         self.presentViewController(actionsheet, animated: true, completion: nil)
     }
     
-    func createUserProfile(name: String, email: String, userID: String, profilePhotoURL: String) {
+    func createUserProfile(name: String, email: String, userID: String, profilePhotoURL: String?) {
         let firebaseOp = FirebaseOperation()
-        let userProfile = ["name": name, "email": email, "userID": userID, "profilePhotoURL": profilePhotoURL]
-        
-        firebaseOp.setValueForChild("users", value: userProfile)
+        if profileImageChanged == true {
+            if let profilePhotoURL = profilePhotoURL {
+                let userProfile = ["name": name, "email": email, "userID": userID, "profilePhotoURL": profilePhotoURL]
+                firebaseOp.setValueForChild("users", value: userProfile)
+            }
+        } else {
+            let userProfile = ["name": name, "email": email, "userID": userID]
+            firebaseOp.setValueForChild("users", value: userProfile)
+        }
     }
     
-    func uploadImageToCloudinary(image:UIImage) {
+    func uploadProfileImageToCloudinary(image:UIImage, completion:(photoURL: String)-> Void) {
+                
         let imageData = UIImageJPEGRepresentation(image, 1.0)
         keys = NSDictionary(contentsOfFile: NSBundle.mainBundle().pathForResource("Keys", ofType: "plist")!)!
         
@@ -83,8 +96,11 @@ class SignUpVC: UIViewController, UINavigationControllerDelegate, UIImagePickerC
             (successResult, error, code, context) in
             
             if successResult != nil {
-                let publicID = successResult["public_id"]
-                print("Upload Sucessful. Public ID = \(publicID), full result: \(successResult)")
+                
+                if let url = successResult["secure_url"] {
+                    let photoURL = url as! String
+                    completion(photoURL: photoURL)
+                }
             }
             
             }) { (bytesWritten, totalBytesWritten, totalBytesExpectedToWrite, context) in
@@ -95,7 +111,9 @@ class SignUpVC: UIViewController, UINavigationControllerDelegate, UIImagePickerC
     
     //test cloudinary download
     func downloadFromCloudinary() {
-        let cloudinary = CLCloudinary(url: "cloudinary://857777363657947:db4zcCyubIjqwItnGb1lQgwqjCg@mapspot")
+        let APIKey = keys["cloudinaryAPIKey"] as! String
+        let APISecret = keys["cloudinaryAPISecret"] as! String
+        let cloudinary = CLCloudinary(url: "cloudinary://\(APIKey):\(APISecret)@mapspot")
         let url = cloudinary.url("sample.jpg")
         
         if let cloudURL = url {
@@ -114,6 +132,7 @@ class SignUpVC: UIViewController, UINavigationControllerDelegate, UIImagePickerC
     }
     
     func signUpUserWithFirebase() {
+        
         let name = nameTF.text
         let email = emailTF.text
         let password = passwordTF.text
@@ -125,7 +144,17 @@ class SignUpVC: UIViewController, UINavigationControllerDelegate, UIImagePickerC
                     print(error?.description)
                 } else {
                     if let user = user, name = name {
-                        self.createUserProfile(name, email: email, userID: user.uid, profilePhotoURL: "")
+
+                        if self.profileImageChanged == true {
+                            if let profileImage = self.profileImage {
+                                self.uploadProfileImageToCloudinary(profileImage, completion: { (photoURL) in
+                                    self.createUserProfile(name, email: email, userID: user.uid, profilePhotoURL: photoURL)
+                                })
+                            }
+                            
+                        } else {
+                            self.createUserProfile(name, email: email, userID: user.uid, profilePhotoURL: nil)
+                        }
                     }
                 }
             })
