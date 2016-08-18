@@ -23,6 +23,7 @@
 		645031A21D53BFD300F9FC41 /* FirebaseDatabaseService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 645031A11D53BFD300F9FC41 /* FirebaseDatabaseService.swift */; };
 		64F96E401D639D5C0060E3F9 /* Keys.plist in Resources */ = {isa = PBXBuildFile; fileRef = 64F96E3F1D639D5C0060E3F9 /* Keys.plist */; };
 		64F96E421D64A4B20060E3F9 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 64F96E411D64A4B20060E3F9 /* GoogleService-Info.plist */; };
+		64F96E441D64B9C60060E3F9 /* CloudinaryOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64F96E431D64B9C60060E3F9 /* CloudinaryOperation.swift */; };
 		7952289071944014D1F2E5DA /* Pods_MapSpotiOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 61CF1B0FA1D74763B77820A4 /* Pods_MapSpotiOS.framework */; };
 		A2C2C8FCA3495EA7E6AD9199 /* Pods_MapSpotiOSTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AB462650B60BB8FE842FA1CB /* Pods_MapSpotiOSTests.framework */; };
 /* End PBXBuildFile section */
@@ -70,6 +71,7 @@
 		645031A11D53BFD300F9FC41 /* FirebaseDatabaseService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FirebaseDatabaseService.swift; sourceTree = "<group>"; };
 		64F96E3F1D639D5C0060E3F9 /* Keys.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Keys.plist; sourceTree = "<group>"; };
 		64F96E411D64A4B20060E3F9 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
+		64F96E431D64B9C60060E3F9 /* CloudinaryOperation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CloudinaryOperation.swift; sourceTree = "<group>"; };
 		AB462650B60BB8FE842FA1CB /* Pods_MapSpotiOSTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_MapSpotiOSTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		CEE473B53E047C2301DD58FA /* Pods-MapSpotiOS.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MapSpotiOS.release.xcconfig"; path = "Pods/Target Support Files/Pods-MapSpotiOS/Pods-MapSpotiOS.release.xcconfig"; sourceTree = "<group>"; };
 		D437FD9336A4201FC5E79759 /* Pods-MapSpotiOSUITests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MapSpotiOSUITests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-MapSpotiOSUITests/Pods-MapSpotiOSUITests.debug.xcconfig"; sourceTree = "<group>"; };
@@ -218,6 +220,7 @@
 			children = (
 				645031A11D53BFD300F9FC41 /* FirebaseDatabaseService.swift */,
 				6450319E1D53BE5800F9FC41 /* FirebaseOperation.swift */,
+				64F96E431D64B9C60060E3F9 /* CloudinaryOperation.swift */,
 			);
 			name = Networking;
 			sourceTree = "<group>";
@@ -494,6 +497,7 @@
 				6420715B1D4FB5B50041B16C /* MapVC.swift in Sources */,
 				642E77521D5D48FE00ABC5BF /* SignUpVC.swift in Sources */,
 				6420715D1D528A1E0041B16C /* LocationSearchTVC.swift in Sources */,
+				64F96E441D64B9C60060E3F9 /* CloudinaryOperation.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

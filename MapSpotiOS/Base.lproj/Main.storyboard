@@ -73,6 +73,11 @@
                                             <action selector="profileButtonPressed:" destination="BYZ-38-t0r" id="WFg-Dk-i5b"/>
                                         </connections>
                                     </barButtonItem>
+                                    <barButtonItem title="SO" id="Hyv-Gr-FUf">
+                                        <connections>
+                                            <action selector="TEMPSIGNOUT:" destination="BYZ-38-t0r" id="SKR-Pt-LKv"/>
+                                        </connections>
+                                    </barButtonItem>
                                     <barButtonItem style="plain" systemItem="flexibleSpace" id="qkh-Cb-wXB"/>
                                     <barButtonItem image="addSpotFilled-1" id="RBZ-Os-pb7"/>
                                     <barButtonItem style="plain" systemItem="flexibleSpace" id="OXZ-XD-DoQ"/>
