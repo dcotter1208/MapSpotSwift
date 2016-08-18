@@ -59,8 +59,12 @@ class SignUpVC: UIViewController, UINavigationControllerDelegate, UIImagePickerC
             imagePicker.configureImagePicker(.PhotoLibrary)
             imagePicker.presentCameraSource(self)
         }
+        
+        let cancel = UIAlertAction(title: "Cancel", style: .Cancel, handler: nil)
+        
         actionsheet.addAction(camera)
         actionsheet.addAction(photoGallery)
+        actionsheet.addAction(cancel)
         self.presentViewController(actionsheet, animated: true, completion: nil)
     }
     
