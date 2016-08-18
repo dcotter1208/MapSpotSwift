@@ -145,10 +145,17 @@ class MapVC: UIViewController, MKMapViewDelegate, CLLocationManagerDelegate, Han
     }
 
    //MARK: IBActions
+    @IBAction func TEMPSIGNOUT(sender: AnyObject) {
+        
+        do {
+            try FIRAuth.auth()?.signOut()
+        } catch {
+            print(error)
+        }
+    }
 
     @IBAction func showUserLocation(sender: AnyObject) {
-        mapView.setRegion(userLocation, animated: true);
-        
+        mapView.setRegion(userLocation, animated: true)
     }
     
     @IBAction func changeMapStyle(sender: AnyObject) {
@@ -166,7 +173,7 @@ class MapVC: UIViewController, MKMapViewDelegate, CLLocationManagerDelegate, Han
     }
     
     @IBAction func profileButtonPressed(sender: AnyObject) {
-        
+    
         if FIRAuth.auth()?.currentUser?.uid == nil {
             presentLoginSignUpOption()
         }

@@ -51,6 +51,23 @@ class SignUpVC: UIViewController, UINavigationControllerDelegate, UIImagePickerC
        let newString = string.stringByTrimmingCharactersInSet(NSCharacterSet.whitespaceCharacterSet())
         return newString
     }
+    
+    func handleFirebaseErrorCode(error: NSError?) {
+        if let errorCode = FIRAuthErrorCode(rawValue: error!.code) {
+            switch errorCode {
+            case .ErrorCodeInvalidEmail:
+                self.displayAlert("Whoops!", message: "Invalid Email")
+            case .ErrorCodeEmailAlreadyInUse:
+                self.displayAlert("Whoops!", message: "Email is already in use.")
+            case .ErrorCodeWeakPassword:
+                self.displayAlert("Whoops!", message: "Please pick a stronger password.")
+            case .ErrorCodeNetworkError:
+                self.displayAlert("Sign Up Failed.", message: "Please check your connection.")
+            default:
+                self.displayAlert("Something went wrong.", message: "Please try again.")
+            }
+        }
+    }
 
     //MARK: Camera Methods
     
@@ -58,11 +75,19 @@ class SignUpVC: UIViewController, UINavigationControllerDelegate, UIImagePickerC
         guard let pickedImage = info[UIImagePickerControllerOriginalImage] as? UIImage else {
             return
         }
-        
+    
         profileImageChanged = true
         profileImageView.image = pickedImage
         profileImage = pickedImage
         self.dismissViewControllerAnimated(true, completion: nil)
+    }
+    
+    //Alert used for failed signup
+    func displayAlert(title: String, message: String?) {
+        let alertController = UIAlertController(title: title, message: message, preferredStyle: .Alert)
+        let okAction = UIAlertAction(title: "OK", style: .Default, handler: nil)
+        alertController.addAction(okAction)
+        self.presentViewController(alertController, animated: true, completion: nil)
     }
     
     //displays action sheet for the camera or photo gallery
@@ -146,15 +171,11 @@ class SignUpVC: UIViewController, UINavigationControllerDelegate, UIImagePickerC
      profile photo URL.
      
 */
-    func signUpUserWithFirebase() {
-        
-        let name = removeWhiteSpace(nameTF.text, removeAllWhiteSpace: false)
-        let email = removeWhiteSpace(emailTF.text, removeAllWhiteSpace: true)
-        let password = removeWhiteSpace(passwordTF.text, removeAllWhiteSpace: true)
+    func signUpUserWithFirebase(email: String, password: String, name: String) {
 
         FIRAuth.auth()?.createUserWithEmail(email, password: password, completion: { (user, error) in
             guard error == nil else {
-                print("Error: \(error?.description)")
+                self.handleFirebaseErrorCode(error)
                 return
             }
             
@@ -172,7 +193,6 @@ class SignUpVC: UIViewController, UINavigationControllerDelegate, UIImagePickerC
             }
             
             self.uploadProfileImageToCloudinary(profileImage, completion: { (photoURL) in
-                print("(5)")
                 self.createUserProfile(name, email: email, userID: user.uid, profilePhotoURL: photoURL)
             })
         })
@@ -189,7 +209,17 @@ class SignUpVC: UIViewController, UINavigationControllerDelegate, UIImagePickerC
     }
 
     @IBAction func signUp(sender: AnyObject) {
-        signUpUserWithFirebase()
+
+        let name = removeWhiteSpace(nameTF.text, removeAllWhiteSpace: false)
+        let email = removeWhiteSpace(emailTF.text, removeAllWhiteSpace: true)
+        let password = removeWhiteSpace(passwordTF.text, removeAllWhiteSpace: true)
+        
+        guard name.characters.count > 2 else {
+            displayAlert("Whoops!", message: "Your name must be longer than 2 characters")
+            return
+        }
+
+        signUpUserWithFirebase(email, password: password, name: name)
     }
 
 
