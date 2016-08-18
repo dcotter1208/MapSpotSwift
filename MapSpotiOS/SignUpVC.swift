@@ -34,7 +34,26 @@ class SignUpVC: UIViewController, UINavigationControllerDelegate, UIImagePickerC
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
     }
+    
+    //MARK: Helper Methods
 
+    func removeWhiteSpace(string:String?, removeAllWhiteSpace:Bool) -> String {
+        
+        guard let string = string else {
+            return "nil"
+        }
+        
+        guard removeAllWhiteSpace == false else {
+            let newString = string.stringByTrimmingCharactersInSet(NSCharacterSet.whitespaceCharacterSet()).stringByReplacingOccurrencesOfString(" ", withString: "")
+            return newString
+        }
+        
+       let newString = string.stringByTrimmingCharactersInSet(NSCharacterSet.whitespaceCharacterSet())
+        return newString
+    }
+
+    //MARK: Camera Methods
+    
     func imagePickerController(picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : AnyObject]) {
         guard let pickedImage = info[UIImagePickerControllerOriginalImage] as? UIImage else {
             return
@@ -68,6 +87,8 @@ class SignUpVC: UIViewController, UINavigationControllerDelegate, UIImagePickerC
         self.presentViewController(actionsheet, animated: true, completion: nil)
     }
     
+    //MARK: Firebase Methods
+
 /*
      Creates a user profile on Firebase.
      If there is a profile photo picked then the profile saved on Firebase has a profilePhotoURL
@@ -126,26 +147,23 @@ class SignUpVC: UIViewController, UINavigationControllerDelegate, UIImagePickerC
      
 */
     func signUpUserWithFirebase() {
-        let name = nameTF.text
-        let email = emailTF.text
-        let password = passwordTF.text
         
-        guard let userEmail = email, userPassword = password else {
-            return
-        }
-        
-        FIRAuth.auth()?.createUserWithEmail(userEmail, password: userPassword, completion: { (user, error) in
+        let name = removeWhiteSpace(nameTF.text, removeAllWhiteSpace: false)
+        let email = removeWhiteSpace(emailTF.text, removeAllWhiteSpace: true)
+        let password = removeWhiteSpace(passwordTF.text, removeAllWhiteSpace: true)
+
+        FIRAuth.auth()?.createUserWithEmail(email, password: password, completion: { (user, error) in
             guard error == nil else {
                 print("Error: \(error?.description)")
                 return
             }
             
-            guard let user = user, name = name else {
+            guard let user = user else {
                 return
             }
             
             guard self.profileImageChanged == true else {
-                self.createUserProfile(name, email: userEmail, userID: user.uid, profilePhotoURL: nil)
+                self.createUserProfile(name, email: email, userID: user.uid, profilePhotoURL: nil)
                 return
             }
             
@@ -155,13 +173,13 @@ class SignUpVC: UIViewController, UINavigationControllerDelegate, UIImagePickerC
             
             self.uploadProfileImageToCloudinary(profileImage, completion: { (photoURL) in
                 print("(5)")
-                self.createUserProfile(name, email: userEmail, userID: user.uid, profilePhotoURL: photoURL)
+                self.createUserProfile(name, email: email, userID: user.uid, profilePhotoURL: photoURL)
             })
         })
     }
 
+    //MARK: IBActions
 
-    
     @IBAction func profilePhotoSelected(sender: AnyObject) {
         displayCameraActionSheet()
     }
