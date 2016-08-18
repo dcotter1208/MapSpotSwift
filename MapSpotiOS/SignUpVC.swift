@@ -185,6 +185,7 @@ class SignUpVC: UIViewController, UINavigationControllerDelegate, UIImagePickerC
             
             guard self.profileImageChanged == true else {
                 self.createUserProfile(name, email: email, userID: user.uid, profilePhotoURL: nil)
+                self.dismissViewControllerAnimated(true, completion: nil)
                 return
             }
             
@@ -194,6 +195,7 @@ class SignUpVC: UIViewController, UINavigationControllerDelegate, UIImagePickerC
             
             self.uploadProfileImageToCloudinary(profileImage, completion: { (photoURL) in
                 self.createUserProfile(name, email: email, userID: user.uid, profilePhotoURL: photoURL)
+                self.dismissViewControllerAnimated(true, completion: nil)
             })
         })
     }
@@ -221,7 +223,6 @@ class SignUpVC: UIViewController, UINavigationControllerDelegate, UIImagePickerC
 
         signUpUserWithFirebase(email, password: password, name: name)
     }
-
 
     
 }
