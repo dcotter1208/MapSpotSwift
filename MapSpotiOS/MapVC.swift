@@ -117,15 +117,33 @@ class MapVC: UIViewController, MKMapViewDelegate, CLLocationManagerDelegate, Han
         }
     }
     
-    func presentLoginSignUpOption() {
+    func presentLoginSignUpOption(title: String, message: String?) {
         
-        let alertController = UIAlertController(title: "Login or Sign Up", message: nil, preferredStyle: .Alert)
+        let alertController = UIAlertController(title: title, message: message, preferredStyle: .Alert)
+
+        alertController.addTextFieldWithConfigurationHandler { (emailTF) in
+            emailTF.placeholder = "email"
+        }
+        
+        alertController.addTextFieldWithConfigurationHandler { (passwordTF) in
+            passwordTF.placeholder = "password"
+        }
         
         let login = UIAlertAction(title: "Login", style: .Default) {
             (action) in
             
-            //Login user with Firebase
-            
+            let emailTF = alertController.textFields![0] as UITextField
+            let passwordTF = alertController.textFields![1] as UITextField
+
+            FIRAuth.auth()?.signInWithEmail(emailTF.text!, password: passwordTF.text!, completion: { (user, error) in
+                
+                guard error == nil else {
+                    self.presentLoginSignUpOption("Login Failed", message: "Please check your email & password and try again.")
+                    print(error?.description)
+                    return
+                }
+                print(user)
+            })
         }
         
         let signup = UIAlertAction(title: "Sign Up", style: .Default) {
@@ -137,8 +155,11 @@ class MapVC: UIViewController, MKMapViewDelegate, CLLocationManagerDelegate, Han
             
         }
         
+        let cancel = UIAlertAction(title: "Cancel", style: .Cancel, handler: nil)
+        
         alertController.addAction(login)
         alertController.addAction(signup)
+        alertController.addAction(cancel)
         
         self.presentViewController(alertController, animated: true, completion: nil)
         
@@ -175,7 +196,7 @@ class MapVC: UIViewController, MKMapViewDelegate, CLLocationManagerDelegate, Han
     @IBAction func profileButtonPressed(sender: AnyObject) {
     
         if FIRAuth.auth()?.currentUser?.uid == nil {
-            presentLoginSignUpOption()
+            presentLoginSignUpOption("Login", message: "Don't have an account? Sign Up")
         }
         
     }
