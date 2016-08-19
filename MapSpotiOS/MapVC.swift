@@ -44,22 +44,25 @@ class MapVC: UIViewController, MKMapViewDelegate, CLLocationManagerDelegate, Han
     //MARK: Map Methods
     
     func setupMapView() {
-        if let mapView = mapView {
-            mapView.delegate = self
-            mapView.showsPointsOfInterest = false
-            mapView.showsUserLocation = true
+        
+        guard let mapView = mapView else {
+            return
         }
+
+        mapView.delegate = self
+        mapView.showsPointsOfInterest = false
+        mapView.showsUserLocation = true
     }
     
     func adjustMapViewCamera() {
-        
         let newCamera = mapView.camera
-        if mapView.camera.pitch < 30.0 {
-            newCamera.pitch = 30.0
-        } else {
+        
+        guard mapView.camera.pitch < 30.0 else {
             newCamera.pitch = mapView.camera.pitch
+            return
         }
-            self.mapView.camera = newCamera
+        newCamera.pitch = 30
+        self.mapView.camera = newCamera
     }
     
     //MARK: SearchController Methods
@@ -96,29 +99,34 @@ class MapVC: UIViewController, MKMapViewDelegate, CLLocationManagerDelegate, Han
     //MARK: Location Methods
     func getUserLocation() {
         locationManager = CLLocationManager()
-        if let manager = locationManager {
-            manager.delegate = self
-            manager.desiredAccuracy = kCLLocationAccuracyNearestTenMeters
-            manager.requestWhenInUseAuthorization()
-            manager.distanceFilter = 100
-            manager.startUpdatingLocation()
-            
-            if let managerLocation = manager.location {
-                newestLocation = managerLocation
-            }
+        
+        guard let manager = locationManager else {
+            return
         }
+
+        manager.delegate = self
+        manager.desiredAccuracy = kCLLocationAccuracyNearestTenMeters
+        manager.requestWhenInUseAuthorization()
+        manager.distanceFilter = 100
+        manager.startUpdatingLocation()
+        
+        guard let managerLocation = manager.location else {
+            return
+        }
+        newestLocation = managerLocation
     }
     
     func locationManager(manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-        if let lastLocation = locations.last {
-            newestLocation = lastLocation
-            userLocation = MKCoordinateRegionMakeWithDistance(newestLocation.coordinate, 800, 800)
-            mapView.setRegion(userLocation, animated: true)
+        
+        guard let lastLocation = locations.last else {
+            return
         }
+        newestLocation = lastLocation
+        userLocation = MKCoordinateRegionMakeWithDistance(newestLocation.coordinate, 800, 800)
+        mapView.setRegion(userLocation, animated: true)
     }
     
     func presentLoginSignUpOption(title: String, message: String?) {
-        
         let alertController = UIAlertController(title: title, message: message, preferredStyle: .Alert)
 
         alertController.addTextFieldWithConfigurationHandler { (emailTF) in
@@ -194,15 +202,13 @@ class MapVC: UIViewController, MKMapViewDelegate, CLLocationManagerDelegate, Han
     }
     
     @IBAction func profileButtonPressed(sender: AnyObject) {
-    
-        if FIRAuth.auth()?.currentUser?.uid == nil {
-            presentLoginSignUpOption("Login", message: "Don't have an account? Sign Up")
-        }
         
+        guard FIRAuth.auth()?.currentUser?.uid == nil else {
+            return
+        }
+        presentLoginSignUpOption("Login", message: "Don't have an account? Sign Up")
     }
 
-    
-    
     //**END**
 }
 
