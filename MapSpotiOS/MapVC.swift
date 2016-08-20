@@ -44,22 +44,25 @@ class MapVC: UIViewController, MKMapViewDelegate, CLLocationManagerDelegate, Han
     //MARK: Map Methods
     
     func setupMapView() {
-        if let mapView = mapView {
-            mapView.delegate = self
-            mapView.showsPointsOfInterest = false
-            mapView.showsUserLocation = true
+        
+        guard let mapView = mapView else {
+            return
         }
+
+        mapView.delegate = self
+        mapView.showsPointsOfInterest = false
+        mapView.showsUserLocation = true
     }
     
     func adjustMapViewCamera() {
-        
         let newCamera = mapView.camera
-        if mapView.camera.pitch < 30.0 {
-            newCamera.pitch = 30.0
-        } else {
+        
+        guard mapView.camera.pitch < 30.0 else {
             newCamera.pitch = mapView.camera.pitch
+            return
         }
-            self.mapView.camera = newCamera
+        newCamera.pitch = 30
+        self.mapView.camera = newCamera
     }
     
     //MARK: SearchController Methods
@@ -96,49 +99,75 @@ class MapVC: UIViewController, MKMapViewDelegate, CLLocationManagerDelegate, Han
     //MARK: Location Methods
     func getUserLocation() {
         locationManager = CLLocationManager()
-        if let manager = locationManager {
-            manager.delegate = self
-            manager.desiredAccuracy = kCLLocationAccuracyNearestTenMeters
-            manager.requestWhenInUseAuthorization()
-            manager.distanceFilter = 100
-            manager.startUpdatingLocation()
-            
-            if let managerLocation = manager.location {
-                newestLocation = managerLocation
-            }
+        
+        guard let manager = locationManager else {
+            return
         }
+
+        manager.delegate = self
+        manager.desiredAccuracy = kCLLocationAccuracyNearestTenMeters
+        manager.requestWhenInUseAuthorization()
+        manager.distanceFilter = 100
+        manager.startUpdatingLocation()
+        
+        guard let managerLocation = manager.location else {
+            return
+        }
+        newestLocation = managerLocation
     }
     
     func locationManager(manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-        if let lastLocation = locations.last {
-            newestLocation = lastLocation
-            userLocation = MKCoordinateRegionMakeWithDistance(newestLocation.coordinate, 800, 800)
-            mapView.setRegion(userLocation, animated: true)
+        
+        guard let lastLocation = locations.last else {
+            return
         }
+        newestLocation = lastLocation
+        userLocation = MKCoordinateRegionMakeWithDistance(newestLocation.coordinate, 800, 800)
+        mapView.setRegion(userLocation, animated: true)
     }
     
-    func presentLoginSignUpOption() {
+    func presentLoginSignUpOption(title: String, message: String?) {
+        let alertController = UIAlertController(title: title, message: message, preferredStyle: .Alert)
+
+        alertController.addTextFieldWithConfigurationHandler { (emailTF) in
+            emailTF.placeholder = "email"
+        }
         
-        let alertController = UIAlertController(title: "Login or Sign Up", message: nil, preferredStyle: .Alert)
+        alertController.addTextFieldWithConfigurationHandler { (passwordTF) in
+            passwordTF.placeholder = "password"
+        }
         
         let login = UIAlertAction(title: "Login", style: .Default) {
             (action) in
             
-            //Login user with Firebase
-            
+            let emailTF = alertController.textFields![0] as UITextField
+            let passwordTF = alertController.textFields![1] as UITextField
+
+            FIRAuth.auth()?.signInWithEmail(emailTF.text!, password: passwordTF.text!, completion: { (user, error) in
+                
+                guard error == nil else {
+                    self.presentLoginSignUpOption("Login Failed", message: "Please check your email & password and try again.")
+                    print(error?.description)
+                    return
+                }
+                print(user)
+            })
         }
         
         let signup = UIAlertAction(title: "Sign Up", style: .Default) {
             (action) in
             
             let storyboard = UIStoryboard(name: "Main", bundle: nil)
-            let SignUpVC = storyboard.instantiateViewControllerWithIdentifier("SignUpVC")
+            let SignUpVC = storyboard.instantiateViewControllerWithIdentifier("SignUpNavController")
             self.presentViewController(SignUpVC, animated: true, completion: nil)
             
         }
         
+        let cancel = UIAlertAction(title: "Cancel", style: .Cancel, handler: nil)
+        
         alertController.addAction(login)
         alertController.addAction(signup)
+        alertController.addAction(cancel)
         
         self.presentViewController(alertController, animated: true, completion: nil)
         
@@ -173,15 +202,13 @@ class MapVC: UIViewController, MKMapViewDelegate, CLLocationManagerDelegate, Han
     }
     
     @IBAction func profileButtonPressed(sender: AnyObject) {
-    
-        if FIRAuth.auth()?.currentUser?.uid == nil {
-            presentLoginSignUpOption()
-        }
         
+        guard FIRAuth.auth()?.currentUser?.uid == nil else {
+            return
+        }
+        presentLoginSignUpOption("Login", message: "Don't have an account? Sign Up")
     }
 
-    
-    
     //**END**
 }
 
