@@ -158,7 +158,7 @@ class MapVC: UIViewController, MKMapViewDelegate, CLLocationManagerDelegate, Han
             (action) in
             
             let storyboard = UIStoryboard(name: "Main", bundle: nil)
-            let SignUpVC = storyboard.instantiateViewControllerWithIdentifier("SignUpVC")
+            let SignUpVC = storyboard.instantiateViewControllerWithIdentifier("SignUpNavController")
             self.presentViewController(SignUpVC, animated: true, completion: nil)
             
         }

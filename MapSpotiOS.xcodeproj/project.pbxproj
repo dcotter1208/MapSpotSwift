@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		610743ED3EC46867356F7E52 /* Pods_MapSpotiOSUITests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5FCC0A6639D16F92322847DA /* Pods_MapSpotiOSUITests.framework */; };
+		640011A91D67F8E1006A4754 /* SignUpTVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 640011A81D67F8E1006A4754 /* SignUpTVC.swift */; };
 		6420712D1D4FB2010041B16C /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6420712C1D4FB2010041B16C /* AppDelegate.swift */; };
 		642071321D4FB2010041B16C /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 642071301D4FB2010041B16C /* Main.storyboard */; };
 		642071341D4FB2010041B16C /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 642071331D4FB2010041B16C /* Assets.xcassets */; };
@@ -50,6 +51,7 @@
 		5B2948D8F4BA416AF2DAF4CA /* Pods-MapSpotiOSUITests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MapSpotiOSUITests.release.xcconfig"; path = "Pods/Target Support Files/Pods-MapSpotiOSUITests/Pods-MapSpotiOSUITests.release.xcconfig"; sourceTree = "<group>"; };
 		5FCC0A6639D16F92322847DA /* Pods_MapSpotiOSUITests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_MapSpotiOSUITests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		61CF1B0FA1D74763B77820A4 /* Pods_MapSpotiOS.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_MapSpotiOS.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		640011A81D67F8E1006A4754 /* SignUpTVC.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SignUpTVC.swift; sourceTree = "<group>"; };
 		642071291D4FB2010041B16C /* MapSpotiOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MapSpotiOS.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		6420712C1D4FB2010041B16C /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		642071311D4FB2010041B16C /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
@@ -203,6 +205,7 @@
 			isa = PBXGroup;
 			children = (
 				642E77511D5D48FE00ABC5BF /* SignUpVC.swift */,
+				640011A81D67F8E1006A4754 /* SignUpTVC.swift */,
 			);
 			name = AccountControllers;
 			sourceTree = "<group>";
@@ -495,6 +498,7 @@
 				6420712D1D4FB2010041B16C /* AppDelegate.swift in Sources */,
 				642E77571D5D789700ABC5BF /* ImagePicker.swift in Sources */,
 				6420715B1D4FB5B50041B16C /* MapVC.swift in Sources */,
+				640011A91D67F8E1006A4754 /* SignUpTVC.swift in Sources */,
 				642E77521D5D48FE00ABC5BF /* SignUpVC.swift in Sources */,
 				6420715D1D528A1E0041B16C /* LocationSearchTVC.swift in Sources */,
 				64F96E441D64B9C60060E3F9 /* CloudinaryOperation.swift in Sources */,
