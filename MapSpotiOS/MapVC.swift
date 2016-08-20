@@ -33,7 +33,7 @@ class MapVC: UIViewController, MKMapViewDelegate, CLLocationManagerDelegate, Han
         getUserLocation()
         setUpSearchControllerWithSearchTable()
         setUpSearchBar()
-        
+
     }
     
     override func didReceiveMemoryWarning() {
