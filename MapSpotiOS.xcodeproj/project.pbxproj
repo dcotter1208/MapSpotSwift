@@ -17,7 +17,6 @@
 		6420714D1D4FB2020041B16C /* MapSpotiOSUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6420714C1D4FB2020041B16C /* MapSpotiOSUITests.swift */; };
 		6420715B1D4FB5B50041B16C /* MapVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6420715A1D4FB5B50041B16C /* MapVC.swift */; };
 		6420715D1D528A1E0041B16C /* LocationSearchTVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6420715C1D528A1E0041B16C /* LocationSearchTVC.swift */; };
-		642E77521D5D48FE00ABC5BF /* SignUpVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 642E77511D5D48FE00ABC5BF /* SignUpVC.swift */; };
 		642E77551D5D639C00ABC5BF /* Cloudinary.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 642E77541D5D639C00ABC5BF /* Cloudinary.framework */; };
 		642E77571D5D789700ABC5BF /* ImagePicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 642E77561D5D789700ABC5BF /* ImagePicker.swift */; };
 		6450319F1D53BE5800F9FC41 /* FirebaseOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6450319E1D53BE5800F9FC41 /* FirebaseOperation.swift */; };
@@ -66,7 +65,6 @@
 		6420714E1D4FB2020041B16C /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		6420715A1D4FB5B50041B16C /* MapVC.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MapVC.swift; sourceTree = "<group>"; };
 		6420715C1D528A1E0041B16C /* LocationSearchTVC.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LocationSearchTVC.swift; sourceTree = "<group>"; };
-		642E77511D5D48FE00ABC5BF /* SignUpVC.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SignUpVC.swift; sourceTree = "<group>"; };
 		642E77541D5D639C00ABC5BF /* Cloudinary.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cloudinary.framework; path = "Pods/../build/Debug-iphoneos/Cloudinary/Cloudinary.framework"; sourceTree = "<group>"; };
 		642E77561D5D789700ABC5BF /* ImagePicker.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ImagePicker.swift; sourceTree = "<group>"; };
 		6450319E1D53BE5800F9FC41 /* FirebaseOperation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FirebaseOperation.swift; sourceTree = "<group>"; };
@@ -204,7 +202,6 @@
 		642E77531D5D490500ABC5BF /* AccountControllers */ = {
 			isa = PBXGroup;
 			children = (
-				642E77511D5D48FE00ABC5BF /* SignUpVC.swift */,
 				640011A81D67F8E1006A4754 /* SignUpTVC.swift */,
 			);
 			name = AccountControllers;
@@ -499,7 +496,6 @@
 				642E77571D5D789700ABC5BF /* ImagePicker.swift in Sources */,
 				6420715B1D4FB5B50041B16C /* MapVC.swift in Sources */,
 				640011A91D67F8E1006A4754 /* SignUpTVC.swift in Sources */,
-				642E77521D5D48FE00ABC5BF /* SignUpVC.swift in Sources */,
 				6420715D1D528A1E0041B16C /* LocationSearchTVC.swift in Sources */,
 				64F96E441D64B9C60060E3F9 /* CloudinaryOperation.swift in Sources */,
 			);
