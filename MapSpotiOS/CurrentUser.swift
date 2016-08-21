@@ -6,7 +6,6 @@
 //  Copyright © 2016 Cotter. All rights reserved.
 //
 
-
 /*
  
  
@@ -22,11 +21,15 @@
 */
 
 import Foundation
+import UIKit
 
 class CurrentUser: NSObject {
     var name = ""
     var email = ""
     var photoURL = ""
+    var userID = ""
+    var snapshotKey = ""
+    var profileImage = UIImage()
     
     //1
     class var sharedInstance: CurrentUser {
@@ -43,10 +46,12 @@ class CurrentUser: NSObject {
         
     }
     
-    func setCurrentUserProperties(name: String, email: String, photoURL: String) {
+    func setCurrentUserProperties(name: String, email: String, photoURL: String, userID: String, snapshotKey: String) {
         self.name = name
         self.email = email
         self.photoURL = photoURL
+        self.userID = userID
+        self.snapshotKey = snapshotKey
     }
 
 }

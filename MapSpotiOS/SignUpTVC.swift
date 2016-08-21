@@ -16,6 +16,7 @@ class SignUpTVC: UITableViewController, UINavigationControllerDelegate, UIImageP
     @IBOutlet weak var emailTF: UITextField!
     @IBOutlet weak var passwordTF: UITextField!
     @IBOutlet weak var profileImageView: UIImageView!
+    @IBOutlet weak var rightBarButton: UIBarButtonItem!
     
     let imagePicker = UIImagePickerController()
     var keys = NSDictionary()
@@ -24,7 +25,6 @@ class SignUpTVC: UITableViewController, UINavigationControllerDelegate, UIImageP
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
         self.tableView.tableFooterView = UIView(frame: CGRectZero)
 
     }
@@ -36,7 +36,7 @@ class SignUpTVC: UITableViewController, UINavigationControllerDelegate, UIImageP
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
     }
-
+    
     func removeWhiteSpace(string:String?, removeAllWhiteSpace:Bool) -> String {
         
         guard let string = string else {
@@ -227,7 +227,6 @@ class SignUpTVC: UITableViewController, UINavigationControllerDelegate, UIImageP
             displayAlert("Whoops!", message: "Your name must be longer than 2 characters")
             return
         }
-        
         signUpUserWithFirebase(email, password: password, name: name)
     }
 

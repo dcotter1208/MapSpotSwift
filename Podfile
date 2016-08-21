@@ -9,6 +9,7 @@ pod ‘Firebase’
 pod 'Firebase/Database'
 pod 'Firebase/Auth'
 pod 'Cloudinary'
+pod 'AlamofireImage', '~> 2.0'
 
   # Pods for MapSpotiOS
 

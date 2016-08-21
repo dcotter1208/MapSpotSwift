@@ -10,6 +10,8 @@ import UIKit
 import MapKit
 import FirebaseDatabase
 import FirebaseAuth
+import Alamofire
+import AlamofireImage
 
 protocol HandleMapSearch: class {
     func dropPinAtSearchedLocation(placemark:MKPlacemark)
@@ -33,7 +35,7 @@ class MapVC: UIViewController, MKMapViewDelegate, CLLocationManagerDelegate, Han
         getUserLocation()
         setUpSearchControllerWithSearchTable()
         setUpSearchBar()
-
+        queryCurrentUserFromFirebase()
     }
     
     override func didReceiveMemoryWarning() {
@@ -63,6 +65,50 @@ class MapVC: UIViewController, MKMapViewDelegate, CLLocationManagerDelegate, Han
         }
         newCamera.pitch = 30
         self.mapView.camera = newCamera
+    }
+    
+    //MARK: Helper Methods
+    
+    func queryCurrentUserFromFirebase() {
+        guard FIRAuth.auth()?.currentUser != nil else {
+        return
+        }
+        let firebaseOp = FirebaseOperation()
+        let query = firebaseOp.firebaseDatabaseRef.ref.child("users").queryOrderedByChild("userID").queryEqualToValue(FIRAuth.auth()?.currentUser?.uid)
+        firebaseOp.queryFirebaseForChildWithConstrtaints(query, firebaseDataEventType: .Value, observeSingleEventType: true) {
+            (result) in
+            self.setCurrentUserProfile(result)
+        }
+    }
+    
+    func setCurrentUserProfile(snapshot: FIRDataSnapshot) {
+        
+        for child in snapshot.children {
+            guard let
+                name = child.value["name"],
+                email = child.value["email"],
+                photoURL = child.value["profilePhotoURL"],
+                userID = child.value["userID"] else {
+            return
+            }
+            guard photoURL != nil else {
+            CurrentUser.sharedInstance.setCurrentUserProperties(name as! String, email: email as! String, photoURL: "", userID: userID as! String, snapshotKey: child.key as String)
+                return
+            }
+            CurrentUser.sharedInstance.setCurrentUserProperties(name as! String, email: email as! String, photoURL: photoURL as! String, userID: userID as! String, snapshotKey: child.key as String)
+            downloadProgileImageWithAlamoFire(photoURL as! String, completion: { (image) in
+                CurrentUser.sharedInstance.profileImage = image
+            })
+        }
+    }
+    
+    func downloadProgileImageWithAlamoFire(photoURL: String, completion:(image:UIImage) -> Void) {
+        Alamofire.request(.GET, photoURL)
+            .responseImage { response in
+                if let image = response.result.value {
+                    completion(image: image)
+                }
+        }
     }
     
     //MARK: SearchController Methods
@@ -125,57 +171,10 @@ class MapVC: UIViewController, MKMapViewDelegate, CLLocationManagerDelegate, Han
         userLocation = MKCoordinateRegionMakeWithDistance(newestLocation.coordinate, 800, 800)
         mapView.setRegion(userLocation, animated: true)
     }
-    
-    func presentLoginSignUpOption(title: String, message: String?) {
-        let alertController = UIAlertController(title: title, message: message, preferredStyle: .Alert)
 
-        alertController.addTextFieldWithConfigurationHandler { (emailTF) in
-            emailTF.placeholder = "email"
-        }
-        
-        alertController.addTextFieldWithConfigurationHandler { (passwordTF) in
-            passwordTF.placeholder = "password"
-        }
-        
-        let login = UIAlertAction(title: "Login", style: .Default) {
-            (action) in
-            
-            let emailTF = alertController.textFields![0] as UITextField
-            let passwordTF = alertController.textFields![1] as UITextField
-
-            FIRAuth.auth()?.signInWithEmail(emailTF.text!, password: passwordTF.text!, completion: { (user, error) in
-                
-                guard error == nil else {
-                    self.presentLoginSignUpOption("Login Failed", message: "Please check your email & password and try again.")
-                    print(error?.description)
-                    return
-                }
-                print(user)
-            })
-        }
-        
-        let signup = UIAlertAction(title: "Sign Up", style: .Default) {
-            (action) in
-            
-            let storyboard = UIStoryboard(name: "Main", bundle: nil)
-            let SignUpVC = storyboard.instantiateViewControllerWithIdentifier("SignUpNavController")
-            self.presentViewController(SignUpVC, animated: true, completion: nil)
-            
-        }
-        
-        let cancel = UIAlertAction(title: "Cancel", style: .Cancel, handler: nil)
-        
-        alertController.addAction(login)
-        alertController.addAction(signup)
-        alertController.addAction(cancel)
-        
-        self.presentViewController(alertController, animated: true, completion: nil)
-        
-    }
 
    //MARK: IBActions
     @IBAction func TEMPSIGNOUT(sender: AnyObject) {
-        
         do {
             try FIRAuth.auth()?.signOut()
         } catch {
@@ -203,10 +202,6 @@ class MapVC: UIViewController, MKMapViewDelegate, CLLocationManagerDelegate, Han
     
     @IBAction func profileButtonPressed(sender: AnyObject) {
         
-        guard FIRAuth.auth()?.currentUser?.uid == nil else {
-            return
-        }
-        presentLoginSignUpOption("Login", message: "Don't have an account? Sign Up")
     }
 
     //**END**
