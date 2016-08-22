@@ -88,7 +88,7 @@ class UserProfileVC: UIViewController {
         
         let signup = UIAlertAction(title: "Sign Up", style: .Default) {
             (action) in
-            self.istantiateUserSignUpEditTVC()
+            self.istantiateSignUpOrEditProfileTVC("SignUpNavController")
         }
         
         let cancel = UIAlertAction(title: "Cancel", style: .Cancel, handler: nil)
@@ -100,10 +100,15 @@ class UserProfileVC: UIViewController {
         self.presentViewController(alertController, animated: true, completion: nil)
     }
     
-    func istantiateUserSignUpEditTVC() {
+    func istantiateSignUpOrEditProfileTVC(viewControllerToIstantiate: String) {
         let storyboard = UIStoryboard(name: "Main", bundle: nil)
-        let SignUpVC = storyboard.instantiateViewControllerWithIdentifier("SignUpEditNavController")
+        let SignUpVC = storyboard.instantiateViewControllerWithIdentifier(viewControllerToIstantiate)
         self.presentViewController(SignUpVC, animated: true, completion: nil)
     }
+
+    @IBAction func editProfileSelected(sender: AnyObject) {
+        istantiateSignUpOrEditProfileTVC("EditProfileNavController")
+    }
+    
     
 }

@@ -133,7 +133,7 @@ class SignUpTVC: UITableViewController, UINavigationControllerDelegate, UIImageP
             return
         }
         
-        let userProfile = ["name": name, "email": email, "userID": userID, "profilePhotoURL": profilePhotoURL]
+        let userProfile = ["name": name, "email": email, "userID": userID, "profilePhotoURL": profilePhotoURL, "location": ""]
         firebaseOp.setValueForChild("users", value: userProfile)
     }
     

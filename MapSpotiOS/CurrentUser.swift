@@ -29,6 +29,7 @@ class CurrentUser: NSObject {
     var photoURL = ""
     var userID = ""
     var snapshotKey = ""
+    var location = ""
     var profileImage = UIImage()
     
     //1

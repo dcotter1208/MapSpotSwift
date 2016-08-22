@@ -88,7 +88,8 @@ class MapVC: UIViewController, MKMapViewDelegate, CLLocationManagerDelegate, Han
                 name = child.value["name"],
                 email = child.value["email"],
                 photoURL = child.value["profilePhotoURL"],
-                userID = child.value["userID"] else {
+                userID = child.value["userID"],
+                location = child.value["location"] else {
             return
             }
             guard photoURL != nil else {
@@ -99,6 +100,11 @@ class MapVC: UIViewController, MKMapViewDelegate, CLLocationManagerDelegate, Han
             downloadProgileImageWithAlamoFire(photoURL as! String, completion: { (image) in
                 CurrentUser.sharedInstance.profileImage = image
             })
+            
+            guard location != nil else {
+                return
+            }
+            CurrentUser.sharedInstance.location = location as! String
         }
     }
     
