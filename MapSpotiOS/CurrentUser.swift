@@ -30,7 +30,7 @@ class CurrentUser: NSObject {
     var userID = ""
     var snapshotKey = ""
     var location = ""
-    var profileImage = UIImage()
+    var profileImage: UIImage?
     
     //1
     class var sharedInstance: CurrentUser {

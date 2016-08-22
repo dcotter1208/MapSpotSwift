@@ -12,7 +12,7 @@ import FirebaseDatabase
 import Alamofire
 import AlamofireImage
 
-class UserProfileVC: UIViewController {
+class UserProfileVC: UIViewController, UpdateCurrentUserDelegate {
     @IBOutlet weak var profileImage: UIImageView!
     @IBOutlet weak var name: UILabel!
 
@@ -28,22 +28,49 @@ class UserProfileVC: UIViewController {
         // Dispose of any resources that can be recreated.
     }
     
+    
+    
+    func updateCurrentUserSingleton(photoURL: String, name: String, location: String, profileImage: UIImage?) {
+        print("NAME \(name)")
+    }
+    
+//    func updateCurrentUserSingleton(photoURL: String, name: String, location: String, profileImage: UIImage?) {
+//        
+//        print("CALLED")
+//        
+//        self.name.text = name
+//        
+//        guard profileImage != nil else {
+//            return
+//        }
+//        
+//        self.profileImage.image = profileImage
+//        
+//    }
+
     func setUserProfile() {
-        
         guard FIRAuth.auth()?.currentUser != nil else {
         return
         }
         
         name.text = CurrentUser.sharedInstance.name
-        
         guard CurrentUser.sharedInstance.photoURL != "" else {
             profileImage.image = UIImage(named: "default_user")
             return
         }
+        
+        guard CurrentUser.sharedInstance.profileImage != nil else {
+            downloadProfileImageWithAlamoFire(CurrentUser.sharedInstance.photoURL, completion: { (image) in
+                self.profileImage.image = image
+                CurrentUser.sharedInstance.profileImage = image
+            })
+            return
+        }
+        
         profileImage.image = CurrentUser.sharedInstance.profileImage
     }
     
-    func downloadProgileImageWithAlamoFire(photoURL: String, completion:(image:UIImage) -> Void) {
+    func downloadProfileImageWithAlamoFire(photoURL: String, completion:(image:UIImage) -> Void) {
         Alamofire.request(.GET, photoURL)
             .responseImage { response in
             if let image = response.result.value {
@@ -59,7 +86,6 @@ class UserProfileVC: UIViewController {
         presentLoginSignUpOption("Login", message: "Don't have an account? Sign Up")
     }
 
-    
     func presentLoginSignUpOption(title: String, message: String?) {
         let alertController = UIAlertController(title: title, message: message, preferredStyle: .Alert)
         
@@ -102,12 +128,29 @@ class UserProfileVC: UIViewController {
     
     func istantiateSignUpOrEditProfileTVC(viewControllerToIstantiate: String) {
         let storyboard = UIStoryboard(name: "Main", bundle: nil)
-        let SignUpVC = storyboard.instantiateViewControllerWithIdentifier(viewControllerToIstantiate)
-        self.presentViewController(SignUpVC, animated: true, completion: nil)
+        let istantiatedVC = storyboard.instantiateViewControllerWithIdentifier(viewControllerToIstantiate)
+        
+        guard viewControllerToIstantiate != "EditProfileTVC" else {
+            let editProfileVC = istantiatedVC as! EditProfileTVC
+            editProfileVC.delegate = self
+            self.presentViewController(istantiatedVC, animated: true, completion: nil)
+            return
+        }
+        
+        self.presentViewController(istantiatedVC, animated: true, completion: nil)
     }
 
+    @IBAction func signOut(sender: AnyObject) {
+        do {
+            try FIRAuth.auth()?.signOut()
+            
+        } catch {
+            print(error)
+        }
+    }
+    
     @IBAction func editProfileSelected(sender: AnyObject) {
-        istantiateSignUpOrEditProfileTVC("EditProfileNavController")
+        istantiateSignUpOrEditProfileTVC("EditProfileTVC")
     }
     
     

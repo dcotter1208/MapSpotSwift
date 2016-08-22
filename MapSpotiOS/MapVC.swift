@@ -180,13 +180,6 @@ class MapVC: UIViewController, MKMapViewDelegate, CLLocationManagerDelegate, Han
 
 
    //MARK: IBActions
-    @IBAction func TEMPSIGNOUT(sender: AnyObject) {
-        do {
-            try FIRAuth.auth()?.signOut()
-        } catch {
-            print(error)
-        }
-    }
 
     @IBAction func showUserLocation(sender: AnyObject) {
         mapView.setRegion(userLocation, animated: true)
