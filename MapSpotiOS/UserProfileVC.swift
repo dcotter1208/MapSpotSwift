@@ -15,44 +15,40 @@ import AlamofireImage
 class UserProfileVC: UIViewController, UpdateCurrentUserDelegate {
     @IBOutlet weak var profileImage: UIImageView!
     @IBOutlet weak var name: UILabel!
+    @IBOutlet weak var rightBarButton: UIBarButtonItem!
 
+    var anonymouslyLoggedIn: Bool?
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-        
         checkForCurrentlyLoggedInUser()
         setUserProfile()
     }
 
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
-        // Dispose of any resources that can be recreated.
+        
     }
 
     func updateCurrentUserSingleton(photoURL: String, name: String, location: String, profileImage: UIImage?) {
         self.name.text = name
+        guard profileImage != nil else {
+            return
+        }
         self.profileImage.image = profileImage
     }
-    
-//    func updateCurrentUserSingleton(photoURL: String, name: String, location: String, profileImage: UIImage?) {
-//        
-//        print("CALLED")
-//        
-//        self.name.text = name
-//        
-//        guard profileImage != nil else {
-//            return
-//        }
-//        
-//        self.profileImage.image = profileImage
-//        
-//    }
 
     func setUserProfile() {
-        guard FIRAuth.auth()?.currentUser != nil else {
+        guard FIRAuth.auth()?.currentUser?.anonymous == false else {
+            name.text = "Anonymous"
+            rightBarButton.title = "Sign Up"
+            anonymouslyLoggedIn = true
+            profileImage.image = UIImage(named: "default_user")
         return
         }
         
         name.text = CurrentUser.sharedInstance.name
+        rightBarButton.title = "Edit"
         guard CurrentUser.sharedInstance.photoURL != "" else {
             profileImage.image = UIImage(named: "default_user")
             return
@@ -65,7 +61,6 @@ class UserProfileVC: UIViewController, UpdateCurrentUserDelegate {
             })
             return
         }
-        
         profileImage.image = CurrentUser.sharedInstance.profileImage
     }
     
@@ -79,6 +74,11 @@ class UserProfileVC: UIViewController, UpdateCurrentUserDelegate {
     }
     
     func checkForCurrentlyLoggedInUser() {
+        guard FIRAuth.auth()?.currentUser?.anonymous == false else {
+            presentLoginSignUpOption("Login", message: "Don't have an account? Sign Up")
+            return
+        }
+        
         guard FIRAuth.auth()?.currentUser == nil else {
             return
         }
@@ -116,11 +116,13 @@ class UserProfileVC: UIViewController, UpdateCurrentUserDelegate {
             self.istantiateSignUpOrEditProfileTVC("SignUpNavController")
         }
         
-        let cancel = UIAlertAction(title: "Cancel", style: .Cancel, handler: nil)
+        let continueAsAnonymous = UIAlertAction(title: "Continue Anonymously", style: .Cancel) { (action) in
+            
+        }
         
         alertController.addAction(login)
         alertController.addAction(signup)
-        alertController.addAction(cancel)
+        alertController.addAction(continueAsAnonymous)
         
         self.presentViewController(alertController, animated: true, completion: nil)
     }
@@ -149,6 +151,12 @@ class UserProfileVC: UIViewController, UpdateCurrentUserDelegate {
     }
     
     @IBAction func editProfileSelected(sender: AnyObject) {
+        
+        guard anonymouslyLoggedIn == false else {
+            istantiateSignUpOrEditProfileTVC("SignUpNavController")
+            return
+        }
+        
         istantiateSignUpOrEditProfileTVC("EditProfileTVC")
     }
     

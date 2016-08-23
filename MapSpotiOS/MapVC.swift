@@ -36,6 +36,11 @@ class MapVC: UIViewController, MKMapViewDelegate, CLLocationManagerDelegate, Han
         setUpSearchControllerWithSearchTable()
         setUpSearchBar()
         queryCurrentUserFromFirebase()
+        
+        if FIRAuth.auth()?.currentUser?.uid == "cIDzZ6IIVcM90XY6V1YXsLXhUy42" {
+            print("match")
+        }
+        
     }
     
     override func didReceiveMemoryWarning() {
@@ -71,11 +76,8 @@ class MapVC: UIViewController, MKMapViewDelegate, CLLocationManagerDelegate, Han
     
     func loginWithAnonymousUser() {
         FIRAuth.auth()?.signInAnonymouslyWithCompletion({ (user, error) in
-            
             if error != nil {
                 print(error)
-            } else {
-
             }
         })
     }
