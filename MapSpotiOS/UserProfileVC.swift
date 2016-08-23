@@ -31,7 +31,8 @@ class UserProfileVC: UIViewController, UpdateCurrentUserDelegate {
     
     
     func updateCurrentUserSingleton(photoURL: String, name: String, location: String, profileImage: UIImage?) {
-        print("NAME \(name)")
+        self.name.text = name
+        self.profileImage.image = profileImage
     }
     
 //    func updateCurrentUserSingleton(photoURL: String, name: String, location: String, profileImage: UIImage?) {
