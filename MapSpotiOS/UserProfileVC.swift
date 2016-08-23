@@ -27,9 +27,7 @@ class UserProfileVC: UIViewController, UpdateCurrentUserDelegate {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
     }
-    
-    
-    
+
     func updateCurrentUserSingleton(photoURL: String, name: String, location: String, profileImage: UIImage?) {
         self.name.text = name
         self.profileImage.image = profileImage

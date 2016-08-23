@@ -69,8 +69,20 @@ class MapVC: UIViewController, MKMapViewDelegate, CLLocationManagerDelegate, Han
     
     //MARK: Helper Methods
     
+    func loginWithAnonymousUser() {
+        FIRAuth.auth()?.signInAnonymouslyWithCompletion({ (user, error) in
+            
+            if error != nil {
+                print(error)
+            } else {
+
+            }
+        })
+    }
+    
     func queryCurrentUserFromFirebase() {
         guard FIRAuth.auth()?.currentUser != nil else {
+            loginWithAnonymousUser()
         return
         }
         let firebaseOp = FirebaseOperation()
