@@ -15,8 +15,8 @@ import AlamofireImage
 class UserProfileVC: UIViewController, UpdateCurrentUserDelegate {
     @IBOutlet weak var profileImage: UIImageView!
     @IBOutlet weak var name: UILabel!
-    @IBOutlet weak var rightBarButton: UIBarButtonItem!
-
+    @IBOutlet weak var locationLabel: UILabel!
+    
     var anonymouslyLoggedIn: Bool?
     
     override func viewDidLoad() {
@@ -40,14 +40,12 @@ class UserProfileVC: UIViewController, UpdateCurrentUserDelegate {
     func setUserProfile() {
         guard FIRAuth.auth()?.currentUser?.anonymous == false else {
             name.text = "Anonymous"
-            rightBarButton.title = "Sign Up"
             anonymouslyLoggedIn = true
             profileImage.image = UIImage(named: "default_user")
         return
         }
         
         name.text = CurrentUser.sharedInstance.name
-        rightBarButton.title = "Edit"
         guard CurrentUser.sharedInstance.photoURL != "" else {
             profileImage.image = UIImage(named: "default_user")
             return
@@ -71,11 +69,26 @@ class UserProfileVC: UIViewController, UpdateCurrentUserDelegate {
             }
         }
     }
+    
+    /*
+     Logs a user in anonymously. Called in queryCurrentUserFromFirebase func
+     if a user isn't already logged into their own account.
+     */
+    func loginWithAnonymousUser() {
+        FIRAuth.auth()?.signInAnonymouslyWithCompletion({ (user, error) in
+            if error != nil {
+                print(error)
+            } else {
+                print(FIRAuth.auth()?.currentUser?.uid)
+            }
+        })
+    }
 
     @IBAction func signOut(sender: AnyObject) {
         do {
             try FIRAuth.auth()?.signOut()
-            
+            loginWithAnonymousUser()
+            self.dismissViewControllerAnimated(false, completion: nil)
         } catch {
             print(error)
         }

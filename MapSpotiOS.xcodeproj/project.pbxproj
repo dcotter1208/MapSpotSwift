@@ -12,7 +12,6 @@
 		640011AB1D680809006A4754 /* CurrentUser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 640011AA1D680809006A4754 /* CurrentUser.swift */; };
 		640011AD1D6813E7006A4754 /* User.swift in Sources */ = {isa = PBXBuildFile; fileRef = 640011AC1D6813E7006A4754 /* User.swift */; };
 		640011B11D6A37BC006A4754 /* UserProfileVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 640011B01D6A37BC006A4754 /* UserProfileVC.swift */; };
-		641240A91D6CE00E0076AC33 /* TestViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 641240A81D6CE00E0076AC33 /* TestViewController.swift */; };
 		6420712D1D4FB2010041B16C /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6420712C1D4FB2010041B16C /* AppDelegate.swift */; };
 		642071321D4FB2010041B16C /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 642071301D4FB2010041B16C /* Main.storyboard */; };
 		642071341D4FB2010041B16C /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 642071331D4FB2010041B16C /* Assets.xcassets */; };
@@ -59,7 +58,6 @@
 		640011AA1D680809006A4754 /* CurrentUser.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CurrentUser.swift; sourceTree = "<group>"; };
 		640011AC1D6813E7006A4754 /* User.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = User.swift; sourceTree = "<group>"; };
 		640011B01D6A37BC006A4754 /* UserProfileVC.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UserProfileVC.swift; sourceTree = "<group>"; };
-		641240A81D6CE00E0076AC33 /* TestViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TestViewController.swift; sourceTree = "<group>"; };
 		642071291D4FB2010041B16C /* MapSpotiOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MapSpotiOS.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		6420712C1D4FB2010041B16C /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		642071311D4FB2010041B16C /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
@@ -215,7 +213,6 @@
 				640011A81D67F8E1006A4754 /* SignUpTVC.swift */,
 				640011B01D6A37BC006A4754 /* UserProfileVC.swift */,
 				647568121D6B3630002C87E7 /* EditProfileTVC.swift */,
-				641240A81D6CE00E0076AC33 /* TestViewController.swift */,
 			);
 			name = AccountControllers;
 			sourceTree = "<group>";
@@ -510,7 +507,6 @@
 				6420712D1D4FB2010041B16C /* AppDelegate.swift in Sources */,
 				640011B11D6A37BC006A4754 /* UserProfileVC.swift in Sources */,
 				642E77571D5D789700ABC5BF /* ImagePicker.swift in Sources */,
-				641240A91D6CE00E0076AC33 /* TestViewController.swift in Sources */,
 				6420715B1D4FB5B50041B16C /* MapVC.swift in Sources */,
 				640011A91D67F8E1006A4754 /* SignUpTVC.swift in Sources */,
 				6420715D1D528A1E0041B16C /* LocationSearchTVC.swift in Sources */,
