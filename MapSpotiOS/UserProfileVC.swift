@@ -93,10 +93,6 @@ class UserProfileVC: UIViewController, UpdateCurrentUserDelegate {
             print(error)
         }
     }
-    
-    @IBAction func editProfileSelected(sender: AnyObject) {
-        
-    
-    }
+
 
 }
