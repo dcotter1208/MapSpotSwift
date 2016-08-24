@@ -21,7 +21,6 @@ class UserProfileVC: UIViewController, UpdateCurrentUserDelegate {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        checkForCurrentlyLoggedInUser()
         setUserProfile()
     }
 
@@ -72,74 +71,6 @@ class UserProfileVC: UIViewController, UpdateCurrentUserDelegate {
             }
         }
     }
-    
-    func checkForCurrentlyLoggedInUser() {
-        guard FIRAuth.auth()?.currentUser?.anonymous == false else {
-            presentLoginSignUpOption("Login", message: "Don't have an account? Sign Up")
-            return
-        }
-        
-        guard FIRAuth.auth()?.currentUser == nil else {
-            return
-        }
-        presentLoginSignUpOption("Login", message: "Don't have an account? Sign Up")
-    }
-
-    func presentLoginSignUpOption(title: String, message: String?) {
-        let alertController = UIAlertController(title: title, message: message, preferredStyle: .Alert)
-        
-        alertController.addTextFieldWithConfigurationHandler { (emailTF) in
-            emailTF.placeholder = "email"
-        }
-        
-        alertController.addTextFieldWithConfigurationHandler { (passwordTF) in
-            passwordTF.placeholder = "password"
-        }
-        
-        let login = UIAlertAction(title: "Login", style: .Default) {
-            (action) in
-            let emailTF = alertController.textFields![0] as UITextField
-            let passwordTF = alertController.textFields![1] as UITextField
-            
-            FIRAuth.auth()?.signInWithEmail(emailTF.text!, password: passwordTF.text!, completion: { (user, error) in
-                guard error == nil else {
-                    self.presentLoginSignUpOption("Login Failed", message: "Please check your email & password and try again.")
-                    print(error?.description)
-                    return
-                }
-                print(user)
-            })
-        }
-        
-        let signup = UIAlertAction(title: "Sign Up", style: .Default) {
-            (action) in
-            self.istantiateSignUpOrEditProfileTVC("SignUpNavController")
-        }
-        
-        let continueAsAnonymous = UIAlertAction(title: "Continue Anonymously", style: .Cancel) { (action) in
-            
-        }
-        
-        alertController.addAction(login)
-        alertController.addAction(signup)
-        alertController.addAction(continueAsAnonymous)
-        
-        self.presentViewController(alertController, animated: true, completion: nil)
-    }
-    
-    func istantiateSignUpOrEditProfileTVC(viewControllerToIstantiate: String) {
-        let storyboard = UIStoryboard(name: "Main", bundle: nil)
-        let istantiatedVC = storyboard.instantiateViewControllerWithIdentifier(viewControllerToIstantiate)
-        
-        guard viewControllerToIstantiate != "EditProfileTVC" else {
-            let editProfileVC = istantiatedVC as! EditProfileTVC
-            editProfileVC.delegate = self
-            self.presentViewController(istantiatedVC, animated: true, completion: nil)
-            return
-        }
-        
-        self.presentViewController(istantiatedVC, animated: true, completion: nil)
-    }
 
     @IBAction func signOut(sender: AnyObject) {
         do {
@@ -152,13 +83,7 @@ class UserProfileVC: UIViewController, UpdateCurrentUserDelegate {
     
     @IBAction func editProfileSelected(sender: AnyObject) {
         
-        guard anonymouslyLoggedIn == false else {
-            istantiateSignUpOrEditProfileTVC("SignUpNavController")
-            return
-        }
-        
-        istantiateSignUpOrEditProfileTVC("EditProfileTVC")
+    
     }
-    
-    
+
 }

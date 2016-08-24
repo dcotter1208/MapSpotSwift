@@ -67,6 +67,8 @@ class LocationSearchTVC: UITableViewController, UISearchResultsUpdating {
 
         let mapItem = searchResults[indexPath.item]
         
+        print(mapItem)
+        
         cell.textLabel?.text = mapItem.name
         cell.detailTextLabel?.text = parseAddress(mapItem.placemark)
         

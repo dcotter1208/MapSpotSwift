@@ -36,19 +36,80 @@ class MapVC: UIViewController, MKMapViewDelegate, CLLocationManagerDelegate, Han
         setUpSearchControllerWithSearchTable()
         setUpSearchBar()
         queryCurrentUserFromFirebase()
-        
-        if FIRAuth.auth()?.currentUser?.uid == "cIDzZ6IIVcM90XY6V1YXsLXhUy42" {
-            print("match")
-        }
-        
+
     }
-    
+
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
     }
 
     //MARK: Map Methods
+    
+    func presentLoginSignUpOption(title: String, message: String?) {
+        let alertController = UIAlertController(title: title, message: message, preferredStyle: .Alert)
+        
+        alertController.addTextFieldWithConfigurationHandler { (emailTF) in
+            emailTF.placeholder = "email"
+        }
+        
+        alertController.addTextFieldWithConfigurationHandler { (passwordTF) in
+            passwordTF.placeholder = "password"
+        }
+        
+        let login = UIAlertAction(title: "Login", style: .Default) {
+            (action) in
+            let emailTF = alertController.textFields![0] as UITextField
+            let passwordTF = alertController.textFields![1] as UITextField
+            
+            FIRAuth.auth()?.signInWithEmail(emailTF.text!, password: passwordTF.text!, completion: { (user, error) in
+                guard error == nil else {
+                    self.presentLoginSignUpOption("Login Failed", message: "Please check your email & password and try again.")
+                    print(error?.description)
+                    return
+                }
+                print(user)
+            })
+        }
+        
+        let signup = UIAlertAction(title: "Sign Up", style: .Default) {
+            (action) in
+            self.istantiateSignUpOrUserProfileVC("SignUpNavController")
+        }
+        
+        let continueAsAnonymous = UIAlertAction(title: "Continue Anonymously", style: .Default) { (action) in
+            
+        }
+        
+        alertController.addAction(login)
+        alertController.addAction(signup)
+        alertController.addAction(continueAsAnonymous)
+        
+        self.presentViewController(alertController, animated: true, completion: nil)
+    }
+    
+        func istantiateSignUpOrUserProfileVC(viewControllerToIstantiate: String) {
+            let storyboard = UIStoryboard(name: "Main", bundle: nil)
+            let istantiatedVC = storyboard.instantiateViewControllerWithIdentifier(viewControllerToIstantiate)
+            
+            guard viewControllerToIstantiate != "EditProfileTVC" else {
+                return
+            }
+        self.presentViewController(istantiatedVC, animated: true, completion: nil)
+        }
+    
+    func checkForCurrentlyLoggedInUser() {
+        guard FIRAuth.auth()?.currentUser?.anonymous == false else {
+            presentLoginSignUpOption("Login", message: "Don't have an account? Sign Up")
+            return
+        }
+        
+        guard FIRAuth.auth()?.currentUser == nil else {
+            istantiateSignUpOrUserProfileVC("UserProfileNavController")
+            return
+        }
+        presentLoginSignUpOption("Login", message: "Don't have an account? Sign Up")
+    }
     
     func setupMapView() {
         
@@ -214,7 +275,7 @@ class MapVC: UIViewController, MKMapViewDelegate, CLLocationManagerDelegate, Han
     }
     
     @IBAction func profileButtonPressed(sender: AnyObject) {
-        
+        checkForCurrentlyLoggedInUser()
     }
 
     //**END**
