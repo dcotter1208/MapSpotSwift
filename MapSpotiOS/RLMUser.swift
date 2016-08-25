@@ -22,16 +22,16 @@ class RLMUser: Object {
         return "userID"
     }
     
-    func createUser(name: String, email: String, userID: String, snapshotKey: String, location: String, photoURL: String?, profileImage: NSData?) {
+    func createUser(name: String, email: String, userID: String, snapshotKey: String, location: String) {
         self.name = name
         self.email = email
         self.userID = userID
         self.snapshotKey = snapshotKey
         self.location = location
-        guard let url = photoURL, image = profileImage else {
-            return
-        }
-        self.photoURL = url
+    }
+    
+    func setRLMUserProfileImageAndURL(URL: String, image: NSData) {
+        self.photoURL = URL
         self.profileImage = image
     }
     

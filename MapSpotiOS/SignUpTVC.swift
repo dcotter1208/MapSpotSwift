@@ -131,9 +131,9 @@ class SignUpTVC: UITableViewController, UINavigationControllerDelegate, UIImageP
         }
     }
     
-    func createRLMUser(name: String, email: String, userID: String, snapshotKey: String, location: String, photoURL: String?, profileImage: NSData?) -> RLMUser {
+    func createRLMUser(name: String, email: String, userID: String, snapshotKey: String, location: String) -> RLMUser {
         let rlmUser = RLMUser()
-        rlmUser.createUser(name, email: email, userID: userID, snapshotKey: snapshotKey, location: location, photoURL: photoURL, profileImage: profileImage)
+        rlmUser.createUser(name, email: email, userID: userID, snapshotKey: snapshotKey, location: location)
         return rlmUser
     }
     
@@ -226,7 +226,7 @@ class SignUpTVC: UITableViewController, UINavigationControllerDelegate, UIImageP
             
             guard self.profileImageChanged == true else {
                 self.createUserProfile(name, email: email, userID: user.uid, profilePhotoURL: nil)
-                let user = self.createRLMUser(name, email: email, userID: user.uid, snapshotKey: self.snapshotKey, location: "", photoURL: nil, profileImage: nil)
+                let user = self.createRLMUser(name, email: email, userID: user.uid, snapshotKey: self.snapshotKey, location: "")
                 self.writeUserToRealm(user)
                 self.dismissViewControllerAnimated(true, completion: nil)
                 return
@@ -238,7 +238,9 @@ class SignUpTVC: UITableViewController, UINavigationControllerDelegate, UIImageP
             
             self.uploadProfileImageToCloudinary(profileImage, completion: { (photoURL) in
                 self.createUserProfile(name, email: email, userID: user.uid, profilePhotoURL: photoURL)
-                let user = self.createRLMUser(name, email: email, userID: user.uid, snapshotKey: self.snapshotKey, location: "", photoURL: photoURL, profileImage: UIImageJPEGRepresentation(profileImage, 1.0))
+                let user = self.createRLMUser(name, email: email, userID: user.uid, snapshotKey: self.snapshotKey, location: "")
+                user.photoURL = photoURL
+                user.profileImage = UIImageJPEGRepresentation(profileImage, 1.0)
                 self.writeUserToRealm(user)
                 self.dismissViewControllerAnimated(true, completion: nil)
             })

@@ -9,6 +9,7 @@
 import UIKit
 import FirebaseAuth
 import Cloudinary
+import RealmSwift
 
 protocol UpdateCurrentUserDelegate {
     func updateCurrentUserSingleton(photoURL: String, name: String, location: String, profileImage: UIImage?) -> Void
@@ -62,6 +63,7 @@ class EditProfileTVC: UITableViewController, UINavigationControllerDelegate, UII
         self.presentViewController(actionsheet, animated: true, completion: nil)
     }
 
+    
     func updateCurrentUserSingleton(photoURL: String) {
         CurrentUser.sharedInstance.name = nameTF.text!
         CurrentUser.sharedInstance.location = locationTF.text!
@@ -142,6 +144,10 @@ class EditProfileTVC: UITableViewController, UINavigationControllerDelegate, UII
         
         firebaseOp.updateChildValue("users", childKey: CurrentUser.sharedInstance.snapshotKey, nodeToUpdate: childToUpdate)
     }
+    
+    func updateUserProfileInRealm(user: RLMUser) {
+        RLMDBManager().updateObject(user)
+    }
 
     //MARK: IBActions
     
@@ -157,12 +163,24 @@ class EditProfileTVC: UITableViewController, UINavigationControllerDelegate, UII
         
         guard profilePhotoChange == true else {
             updateUserProfileOnFirebase(CurrentUser.sharedInstance.photoURL)
+            let updatedRLMUser = RLMUser()
+            updatedRLMUser.createUser(name, email: CurrentUser.sharedInstance.email, userID: CurrentUser.sharedInstance.userID, snapshotKey: CurrentUser.sharedInstance.snapshotKey, location: location)
+            updatedRLMUser.photoURL = CurrentUser.sharedInstance.photoURL
+            guard let currentImage = CurrentUser.sharedInstance.profileImage else {return}
+            updatedRLMUser.profileImage = UIImageJPEGRepresentation(currentImage, 1.0)
+            self.updateUserProfileInRealm(updatedRLMUser)
             self.delegate?.updateCurrentUserSingleton(CurrentUser.sharedInstance.photoURL, name: name, location: location, profileImage: nil)
             self.dismissViewControllerAnimated(true, completion: nil)
             return
         }
         
         uploadProfileImageToCloudinary(pickedProfileImage) { (photoURL) in
+            let updatedRLMUser = RLMUser()
+            updatedRLMUser.createUser(name, email: CurrentUser.sharedInstance.email, userID: CurrentUser.sharedInstance.userID, snapshotKey: CurrentUser.sharedInstance.snapshotKey, location: location)
+            updatedRLMUser.photoURL = photoURL
+            updatedRLMUser.profileImage = UIImageJPEGRepresentation(self.pickedProfileImage, 1.0)
+            self.updateUserProfileInRealm(updatedRLMUser)
+
             self.updateUserProfileOnFirebase(photoURL)
             self.delegate?.updateCurrentUserSingleton(CurrentUser.sharedInstance.photoURL, name: name, location: location, profileImage: self.pickedProfileImage)
             self.dismissViewControllerAnimated(true, completion: nil)

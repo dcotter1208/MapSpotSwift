@@ -26,7 +26,6 @@ class UserProfileVC: UIViewController, UpdateCurrentUserDelegate {
 
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
-        
     }
 
     func setEditProfileTVCDelegate() {
@@ -36,8 +35,6 @@ class UserProfileVC: UIViewController, UpdateCurrentUserDelegate {
     }
     
     func updateCurrentUserSingleton(photoURL: String, name: String, location: String, profileImage: UIImage?) {
-        print("CALLED")
-        print(location)
         self.name.text = name
         self.locationLabel.text = location
         guard profileImage != nil else {
@@ -48,6 +45,7 @@ class UserProfileVC: UIViewController, UpdateCurrentUserDelegate {
 
     func setUserProfile() {
         name.text = CurrentUser.sharedInstance.name
+        locationLabel.text = CurrentUser.sharedInstance.location
         guard CurrentUser.sharedInstance.profileImage != nil else {
             profileImage.image = UIImage(named: "default_user")
             return

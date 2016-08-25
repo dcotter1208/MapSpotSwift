@@ -212,10 +212,10 @@ class MapVC: UIViewController, MKMapViewDelegate, CLLocationManagerDelegate, Han
             }
             
             guard photoURL != nil else {
-            CurrentUser.sharedInstance.setCurrentUserProperties(name as! String, email: email as! String, photoURL: "", userID: userID as! String, snapshotKey: child.key as String)
+            CurrentUser.sharedInstance.setCurrentUserProperties(name as! String, location: location as! String, email: email as! String, photoURL: "", userID: userID as! String, snapshotKey: child.key as String)
                 return
             }
-            CurrentUser.sharedInstance.setCurrentUserProperties(name as! String, email: email as! String, photoURL: photoURL as! String, userID: userID as! String, snapshotKey: child.key as String)
+            CurrentUser.sharedInstance.setCurrentUserProperties(name as! String, location: location as! String, email: email as! String, photoURL: photoURL as! String, userID: userID as! String, snapshotKey: child.key as String)
             downloadProfileImageWithAlamoFire(photoURL as! String, completion: { (image) in
                 CurrentUser.sharedInstance.profileImage = image
             })
@@ -228,7 +228,7 @@ class MapVC: UIViewController, MKMapViewDelegate, CLLocationManagerDelegate, Han
     }
     
     func setCurrentUserProfileWithRealmResults(realmResults:Results<RLMUser>) {
-        CurrentUser.sharedInstance.setCurrentUserProperties(realmResults[0].name, email: realmResults[0].email, photoURL: realmResults[0].photoURL, userID: realmResults[0].userID, snapshotKey: realmResults[0].snapshotKey)
+        CurrentUser.sharedInstance.setCurrentUserProperties(realmResults[0].name, location: realmResults[0].location, email: realmResults[0].email, photoURL: realmResults[0].photoURL, userID: realmResults[0].userID, snapshotKey: realmResults[0].snapshotKey)
         guard let profileImageData = realmResults[0].profileImage else {return}
         CurrentUser.sharedInstance.profileImage = UIImage(data: profileImageData)
     }
