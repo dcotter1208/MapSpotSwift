@@ -21,7 +21,7 @@ class EditProfileTVC: UITableViewController, UINavigationControllerDelegate, UII
     
     var profilePhotoChange: Bool?
     var pickedProfileImage = UIImage()
-   var delegate: UpdateCurrentUserDelegate?
+    var delegate: UpdateCurrentUserDelegate?
     
     override func viewDidLoad() {
         super.viewDidLoad()

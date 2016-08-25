@@ -12,6 +12,7 @@ import FirebaseDatabase
 import FirebaseAuth
 import Alamofire
 import AlamofireImage
+import RealmSwift
 
 protocol HandleMapSearch: class {
     func dropPinAtSearchedLocation(placemark:MKPlacemark)
@@ -35,10 +36,18 @@ class MapVC: UIViewController, MKMapViewDelegate, CLLocationManagerDelegate, Han
         getUserLocation()
         setUpSearchControllerWithSearchTable()
         setUpSearchBar()
-        queryCurrentUserFromFirebase()
+        getCurrentUserProfileWithRealm()
+//        queryCurrentUserFromFirebase()
+        
+        
         
         let dbManager = RLMDBManager()
         print(dbManager.realm?.configuration.fileURL)
+        
+        
+        if let userID = FIRAuth.auth()?.currentUser?.uid {
+            dbManager.getCurrentUserFromRealm(userID)
+        }
         
 //        
 //        let dbManager = RLMDBManager()
@@ -100,7 +109,8 @@ class MapVC: UIViewController, MKMapViewDelegate, CLLocationManagerDelegate, Han
                     print(error?.description)
                     return
                 }
-                self.queryCurrentUserFromFirebase()
+                //Check for the current user profile in realm. if it isn't in realm the query from Firebase and write to realm. This solves the edge case for if someone logs into the account and did not register for the account on the phone their signing in on.
+//                self.queryCurrentUserFromFirebase()
                 //Set Current User Singleton Here
             })
         }
@@ -160,26 +170,36 @@ class MapVC: UIViewController, MKMapViewDelegate, CLLocationManagerDelegate, Han
     
     /*
      Checks if a user is already logged in. If they aren't then it logs
-     them in anonymously. If they are then it makes a query to Firebase for
+     them in anonymously. If they are then it makes a query to Realm for
      the Current User's UserProfile and sets the CurrentUser Singleton.
  */
-    func queryCurrentUserFromFirebase() {
+    func getCurrentUserProfileWithRealm() {
         guard FIRAuth.auth()?.currentUser != nil else {
             loginWithAnonymousUser()
         return
         }
+        
+        let realmManager = RLMDBManager()
+        guard let userID = FIRAuth.auth()?.currentUser?.uid else {
+            return
+        }
+        let results = realmManager.getCurrentUserFromRealm(userID)
+        setCurrentUserProfileWithRealmResults(results)
+    }
+    
+    func queryCurrentUserProfileFromFirebase() {
         let firebaseOp = FirebaseOperation()
         let query = firebaseOp.firebaseDatabaseRef.ref.child("users").queryOrderedByChild("userID").queryEqualToValue(FIRAuth.auth()?.currentUser?.uid)
         firebaseOp.queryFirebaseForChildWithConstrtaints(query, firebaseDataEventType: .Value, observeSingleEventType: true) {
             (result) in
-            self.setCurrentUserProfile(result)
+            self.setCurrentUserProfileWithFirebaseSnapshot(result)
         }
     }
     
     /*
      Sets the CurrentUser Singleton from a FIRDataSnapshot.
  */
-    func setCurrentUserProfile(snapshot: FIRDataSnapshot) {
+    func setCurrentUserProfileWithFirebaseSnapshot(snapshot: FIRDataSnapshot) {
         
         for child in snapshot.children {
             guard let
@@ -205,6 +225,12 @@ class MapVC: UIViewController, MKMapViewDelegate, CLLocationManagerDelegate, Han
             }
             CurrentUser.sharedInstance.location = location as! String
         }
+    }
+    
+    func setCurrentUserProfileWithRealmResults(realmResults:Results<RLMUser>) {
+        CurrentUser.sharedInstance.setCurrentUserProperties(realmResults[0].name, email: realmResults[0].email, photoURL: realmResults[0].photoURL, userID: realmResults[0].userID, snapshotKey: realmResults[0].snapshotKey)
+        guard let profileImageData = realmResults[0].profileImage else {return}
+        CurrentUser.sharedInstance.profileImage = UIImage(data: profileImageData)
     }
     
     /*

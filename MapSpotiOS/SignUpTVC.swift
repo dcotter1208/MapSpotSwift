@@ -238,7 +238,8 @@ class SignUpTVC: UITableViewController, UINavigationControllerDelegate, UIImageP
             
             self.uploadProfileImageToCloudinary(profileImage, completion: { (photoURL) in
                 self.createUserProfile(name, email: email, userID: user.uid, profilePhotoURL: photoURL)
-
+                let user = self.createRLMUser(name, email: email, userID: user.uid, snapshotKey: self.snapshotKey, location: "", photoURL: photoURL, profileImage: UIImageJPEGRepresentation(profileImage, 1.0))
+                self.writeUserToRealm(user)
                 self.dismissViewControllerAnimated(true, completion: nil)
             })
         })

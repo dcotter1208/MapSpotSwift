@@ -118,7 +118,7 @@
                         </barButtonItem>
                         <barButtonItem key="rightBarButtonItem" title="Edit" id="klb-MI-Uf6">
                             <connections>
-                                <segue destination="ZwT-GU-9gt" kind="presentation" id="fmr-f2-DFB"/>
+                                <segue destination="ZwT-GU-9gt" kind="presentation" identifier="editProfileSegue" id="fmr-f2-DFB"/>
                             </connections>
                         </barButtonItem>
                     </navigationItem>

@@ -23,8 +23,30 @@ class RLMDBManager {
     }
     
     
-//    func writeObject(object:Object) {
-////        realm.addOrUpdateObject(object)
-//    }
+    func writeObject(object:Object) {
+        realm?.beginWrite()
+        realm?.add(object)
+        do {
+            try realm?.commitWrite()
+        } catch let error as NSError {
+            print(error)
+        }
+    }
+    
+    func updateObject(object:Object) {
+        realm?.beginWrite()
+        realm?.add(object, update: true)
+        do {
+            try realm?.commitWrite()
+        } catch let error as NSError {
+            print(error)
+        }
+    }
+    
+    func getCurrentUserFromRealm(userID:String) -> Results<RLMUser> {
+        let user = realm?.objects(RLMUser.self).filter("userID = '\(userID)'")
+        return user!
+    }
+    
     
 }
