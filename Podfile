@@ -10,6 +10,7 @@ pod 'Firebase/Database'
 pod 'Firebase/Auth'
 pod 'Cloudinary'
 pod 'AlamofireImage', '~> 2.0'
+pod ’RealmSwift'
 
   # Pods for MapSpotiOS
 

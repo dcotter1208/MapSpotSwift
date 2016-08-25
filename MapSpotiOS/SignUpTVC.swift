@@ -10,6 +10,7 @@ import UIKit
 import FirebaseAuth
 import FirebaseDatabase
 import Cloudinary
+import RealmSwift
 
 class SignUpTVC: UITableViewController, UINavigationControllerDelegate, UIImagePickerControllerDelegate, CLUploaderDelegate {
     @IBOutlet weak var nameTF: UITextField!
@@ -22,11 +23,16 @@ class SignUpTVC: UITableViewController, UINavigationControllerDelegate, UIImageP
     var keys = NSDictionary()
     var profileImage: UIImage?
     var profileImageChanged: Bool?
+    private var userRef = FIRDatabaseReference()
+    private var firebaseOp = FirebaseOperation()
+    private var snapshotKey = String()
     
     override func viewDidLoad() {
         super.viewDidLoad()
         self.tableView.tableFooterView = UIView(frame: CGRectZero)
-
+        firebaseOp = FirebaseOperation()
+        userRef = firebaseOp.firebaseDatabaseRef.ref.child("users").childByAutoId()
+        snapshotKey = firebaseOp.getSnapshotKeyFromRef(userRef)
     }
     
     override func viewWillDisappear(animated: Bool) {
@@ -112,6 +118,25 @@ class SignUpTVC: UITableViewController, UINavigationControllerDelegate, UIImageP
         self.presentViewController(actionsheet, animated: true, completion: nil)
     }
     
+    //MARK: Realm Methods
+    func writeUserToRealm(user: Object) {
+        let realmDBManager = RLMDBManager()
+        realmDBManager.realm?.beginWrite()
+        realmDBManager.realm?.add(user)
+        
+        do {
+            try realmDBManager.realm?.commitWrite()
+        } catch let error as NSError {
+            print(error)
+        }
+    }
+    
+    func createRLMUser(name: String, email: String, userID: String, snapshotKey: String, location: String, photoURL: String?, profileImage: NSData?) -> RLMUser {
+        let rlmUser = RLMUser()
+        rlmUser.createUser(name, email: email, userID: userID, snapshotKey: snapshotKey, location: location, photoURL: photoURL, profileImage: profileImage)
+        return rlmUser
+    }
+    
     //MARK: Firebase Methods
     
     /*
@@ -120,6 +145,14 @@ class SignUpTVC: UITableViewController, UINavigationControllerDelegate, UIImageP
      Else it doesn't have a profile photoURL and the default_user photo will be used
      wherever their profile photo is supposed to be.
      */
+    
+    func createUserOnFirebase(userProfile: [String: String]) {
+        let firebaseOp = FirebaseOperation()
+        let userRef = firebaseOp.firebaseDatabaseRef.ref.child("users").childByAutoId()
+        firebaseOp.getSnapshotKeyFromRef(userRef)
+        firebaseOp.createUserProfileWithFirebase(userRef, userProfile: userProfile)
+    }
+    
     func createUserProfile(name: String, email: String, userID: String, profilePhotoURL: String?) {
         let firebaseOp = FirebaseOperation()
         
@@ -147,7 +180,7 @@ class SignUpTVC: UITableViewController, UINavigationControllerDelegate, UIImageP
         let cloudinary = CLCloudinary(url: "cloudinary://\(keys["cloudinaryAPIKey"] as! String):\(keys["cloudinaryAPISecret"] as! String)@mapspot")
         let mobileUploader = CLUploader(cloudinary, delegate: self)
         mobileUploader.delegate = self
-        
+
         mobileUploader.upload(imageData, options: nil, withCompletion: {
             (successResult, error, code, context) in
             
@@ -161,6 +194,15 @@ class SignUpTVC: UITableViewController, UINavigationControllerDelegate, UIImageP
             
         }
     }
+
+    func queryUserProfileFromFirebase(userID: String) {
+        let firebaseOp = FirebaseOperation()
+        let query = firebaseOp.firebaseDatabaseRef.ref.child("users").queryOrderedByChild("userID").queryEqualToValue(userID)
+        firebaseOp.queryFirebaseForChildWithConstrtaints(query, firebaseDataEventType: .Value, observeSingleEventType: true) {
+            (result) in
+            print(result)
+        }
+    }
     
     /*
      Signs up a user with Firebase using email Auth.
@@ -169,7 +211,6 @@ class SignUpTVC: UITableViewController, UINavigationControllerDelegate, UIImageP
      URL for the photo comes back then the profile is saved in Firebase with a profile URL.
      If there is no profile photo selected then a user profile is created without a
      profile photo URL.
-     
      */
     func signUpUserWithFirebase(email: String, password: String, name: String) {
         
@@ -185,6 +226,8 @@ class SignUpTVC: UITableViewController, UINavigationControllerDelegate, UIImageP
             
             guard self.profileImageChanged == true else {
                 self.createUserProfile(name, email: email, userID: user.uid, profilePhotoURL: nil)
+                let user = self.createRLMUser(name, email: email, userID: user.uid, snapshotKey: self.snapshotKey, location: "", photoURL: nil, profileImage: nil)
+                self.writeUserToRealm(user)
                 self.dismissViewControllerAnimated(true, completion: nil)
                 return
             }
@@ -195,6 +238,7 @@ class SignUpTVC: UITableViewController, UINavigationControllerDelegate, UIImageP
             
             self.uploadProfileImageToCloudinary(profileImage, completion: { (photoURL) in
                 self.createUserProfile(name, email: email, userID: user.uid, profilePhotoURL: photoURL)
+
                 self.dismissViewControllerAnimated(true, completion: nil)
             })
         })

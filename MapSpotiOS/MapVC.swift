@@ -36,7 +36,17 @@ class MapVC: UIViewController, MKMapViewDelegate, CLLocationManagerDelegate, Han
         setUpSearchControllerWithSearchTable()
         setUpSearchBar()
         queryCurrentUserFromFirebase()
-
+        
+        let dbManager = RLMDBManager()
+        print(dbManager.realm?.configuration.fileURL)
+        
+//        
+//        let dbManager = RLMDBManager()
+//        let user = RLMUser()
+//        user.createUser("Donovan", email: "cotter@yahoo.com", userID: "34234225235", snapshotKey: "jasfja888jsj", location: "", photoURL: nil, profileImage: nil)
+//        dbManager.writeObject(user)
+        
+        
     }
 
     override func didReceiveMemoryWarning() {
