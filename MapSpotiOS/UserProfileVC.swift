@@ -74,12 +74,15 @@ class UserProfileVC: UIViewController, UpdateCurrentUserDelegate {
      Logs a user in anonymously. Called in queryCurrentUserFromFirebase func
      if a user isn't already logged into their own account.
      */
-    func loginWithAnonymousUser() {
+    func loginWithAnonymousUser(completion:(anonymousUserID: String)-> Void) {
         FIRAuth.auth()?.signInAnonymouslyWithCompletion({ (user, error) in
             if error != nil {
                 print(error)
             } else {
-                print(FIRAuth.auth()?.currentUser?.uid)
+                guard let userID = FIRAuth.auth()?.currentUser?.uid else {
+                    return
+                }
+                completion(anonymousUserID: userID)
             }
         })
     }
@@ -87,8 +90,10 @@ class UserProfileVC: UIViewController, UpdateCurrentUserDelegate {
     @IBAction func signOut(sender: AnyObject) {
         do {
             try FIRAuth.auth()?.signOut()
-            loginWithAnonymousUser()
-            self.dismissViewControllerAnimated(false, completion: nil)
+            loginWithAnonymousUser({
+                (anonymousUserID) in
+                self.performSegueWithIdentifier("unwindToMapSegue", sender: self)
+            })
         } catch {
             print(error)
         }
