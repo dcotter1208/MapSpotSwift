@@ -32,10 +32,9 @@ class MapVC: UIViewController, MKMapViewDelegate, CLLocationManagerDelegate, Han
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        
+
         print(RLMDBManager().realm?.configuration.fileURL)
-        
+
         setupMapView()
         getUserLocation()
         setUpSearchControllerWithSearchTable()
@@ -121,7 +120,6 @@ class MapVC: UIViewController, MKMapViewDelegate, CLLocationManagerDelegate, Han
                     print(error?.description)
                     return
                 }
-    
                 self.getCurrentUserProfileWithRealm({
                     (results) in
                     guard results.isEmpty == false else {
@@ -129,6 +127,7 @@ class MapVC: UIViewController, MKMapViewDelegate, CLLocationManagerDelegate, Han
                      return
                     }
                     self.setCurrentUserProfileWithRealmResults(results)
+                    alertController.dismissViewControllerAnimated(true, completion: nil)
                 })
             })
         }
@@ -150,10 +149,6 @@ class MapVC: UIViewController, MKMapViewDelegate, CLLocationManagerDelegate, Han
     func istantiateSignUpOrUserProfileVC(viewControllerToIstantiate: String) {
         let storyboard = UIStoryboard(name: "Main", bundle: nil)
         let istantiatedVC = storyboard.instantiateViewControllerWithIdentifier(viewControllerToIstantiate)
-        
-        guard viewControllerToIstantiate != "EditProfileTVC" else {
-            return
-        }
         self.presentViewController(istantiatedVC, animated: true, completion: nil)
     }
     
@@ -164,14 +159,14 @@ class MapVC: UIViewController, MKMapViewDelegate, CLLocationManagerDelegate, Han
  */
     func checkForCurrentlyLoggedInUser() {
         guard FIRAuth.auth()?.currentUser?.anonymous == false else {
-            presentLoginSignUpOption("Login", message: "Don't have an account? Sign Up")
+            istantiateSignUpOrUserProfileVC("LogInNavController")
             return
         }
         guard FIRAuth.auth()?.currentUser == nil else {
             performSegueWithIdentifier("showUserProfileSegue", sender: self)
             return
         }
-        presentLoginSignUpOption("Login", message: "Don't have an account? Sign Up")
+        istantiateSignUpOrUserProfileVC("LogInNavController")
     }
     
     /*
@@ -197,10 +192,7 @@ class MapVC: UIViewController, MKMapViewDelegate, CLLocationManagerDelegate, Han
         return
         }
         let realmManager = RLMDBManager()
-        guard let userID = FIRAuth.auth()?.currentUser?.uid else {
-            return
-        }
-        
+        guard let userID = FIRAuth.auth()?.currentUser?.uid else {return}
         completion(results: realmManager.getCurrentUserFromRealm(userID))
     }
     
