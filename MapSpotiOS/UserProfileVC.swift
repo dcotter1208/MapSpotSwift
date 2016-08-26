@@ -28,12 +28,6 @@ class UserProfileVC: UIViewController, UpdateCurrentUserDelegate {
         super.didReceiveMemoryWarning()
     }
 
-    func setEditProfileTVCDelegate() {
-        let storyboard = UIStoryboard(name: "Main", bundle: nil)
-        let editProfileTVC = storyboard.instantiateViewControllerWithIdentifier("EditProfileTVC") as! EditProfileTVC
-        editProfileTVC.delegate = self
-    }
-    
     func updateCurrentUserSingleton(photoURL: String, name: String, location: String, profileImage: UIImage?) {
         self.name.text = name
         self.locationLabel.text = location
