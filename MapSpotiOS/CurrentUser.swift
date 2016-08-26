@@ -55,5 +55,18 @@ class CurrentUser: NSObject {
         self.userID = userID
         self.snapshotKey = snapshotKey
     }
+    
+    func resetProperties() {
+        self.name = ""
+        self.email = ""
+        self.photoURL = ""
+        self.userID = ""
+        self.snapshotKey = ""
+        self.location = ""
+        self.profileImage = nil
+    }
 
 }
+
+
+

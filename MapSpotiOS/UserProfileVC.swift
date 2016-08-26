@@ -76,6 +76,7 @@ class UserProfileVC: UIViewController, UpdateCurrentUserDelegate {
             try FIRAuth.auth()?.signOut()
             loginWithAnonymousUser({
                 (anonymousUserID) in
+                CurrentUser.sharedInstance.resetProperties()
                 self.performSegueWithIdentifier("unwindToMapSegue", sender: self)
             })
         } catch {
