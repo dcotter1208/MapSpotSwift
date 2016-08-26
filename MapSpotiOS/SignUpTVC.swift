@@ -157,7 +157,7 @@ class SignUpTVC: UITableViewController, UINavigationControllerDelegate, UIImageP
         let firebaseOp = FirebaseOperation()
         
         guard profileImageChanged == true else {
-            let userProfile = ["name": name, "email": email, "userID": userID]
+            let userProfile = ["name": name, "email": email, "userID": userID, "location": "", "profilePhotoURL": ""]
             firebaseOp.setValueForChild("users", value: userProfile)
             return
         }
@@ -235,7 +235,6 @@ class SignUpTVC: UITableViewController, UINavigationControllerDelegate, UIImageP
             guard let profileImage = self.profileImage else {
                 return
             }
-            
             self.uploadProfileImageToCloudinary(profileImage, completion: { (photoURL) in
                 self.createUserProfile(name, email: email, userID: user.uid, profilePhotoURL: photoURL)
                 let user = self.createRLMUser(name, email: email, userID: user.uid, snapshotKey: self.snapshotKey, location: "")

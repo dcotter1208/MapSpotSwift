@@ -136,6 +136,8 @@ class EditProfileTVC: UITableViewController, UINavigationControllerDelegate, UII
             return
         }
 
+        print("CURRENT SNAPSHOT KEY: \(CurrentUser.sharedInstance.snapshotKey)")
+        
         let childToUpdate = ["name": removeWhiteSpace(nameTF.text!, removeAllWhiteSpace: false),
                              "profilePhotoURL": photoURL,
                              "email": CurrentUser.sharedInstance.email,
@@ -146,6 +148,7 @@ class EditProfileTVC: UITableViewController, UINavigationControllerDelegate, UII
     }
     
     func updateUserProfileInRealm(user: RLMUser) {
+        print(user)
         RLMDBManager().updateObject(user)
     }
 
@@ -155,18 +158,34 @@ class EditProfileTVC: UITableViewController, UINavigationControllerDelegate, UII
         displayCameraActionSheet()
     }
     
+    /*
+ 
+     *****THIS NEEDS TO BE REFACTORED IN SOME WAY******
+     
+     This is checking if the profile photo is changed. If it was changed then
+     
+ */
     @IBAction func updateSelected(sender: AnyObject) {
         
         guard let name = nameTF.text, location = locationTF.text else {
             return
         }
-        
         guard profilePhotoChange == true else {
+            //Profile photo not changed
             updateUserProfileOnFirebase(CurrentUser.sharedInstance.photoURL)
             let updatedRLMUser = RLMUser()
             updatedRLMUser.createUser(name, email: CurrentUser.sharedInstance.email, userID: CurrentUser.sharedInstance.userID, snapshotKey: CurrentUser.sharedInstance.snapshotKey, location: location)
             updatedRLMUser.photoURL = CurrentUser.sharedInstance.photoURL
-            guard let currentImage = CurrentUser.sharedInstance.profileImage else {return}
+            
+            //There is no current profile photo Update Firebase & Realm.
+            guard let currentImage = CurrentUser.sharedInstance.profileImage else {
+                self.delegate?.updateCurrentUserSingleton(CurrentUser.sharedInstance.photoURL, name: name, location: location, profileImage: nil)
+                self.dismissViewControllerAnimated(true, completion: nil)
+                self.updateUserProfileInRealm(updatedRLMUser)
+                return
+            }
+            
+            //Profile photo not changed cont... After checking if there was already a current profile photo. Update Firebase & Realm
             updatedRLMUser.profileImage = UIImageJPEGRepresentation(currentImage, 1.0)
             self.updateUserProfileInRealm(updatedRLMUser)
             self.delegate?.updateCurrentUserSingleton(CurrentUser.sharedInstance.photoURL, name: name, location: location, profileImage: nil)
@@ -174,17 +193,18 @@ class EditProfileTVC: UITableViewController, UINavigationControllerDelegate, UII
             return
         }
         
+        //Profile Photo was changed. Upload Photo to Cloudinary, Update Firebase & Realm.
         uploadProfileImageToCloudinary(pickedProfileImage) { (photoURL) in
             let updatedRLMUser = RLMUser()
             updatedRLMUser.createUser(name, email: CurrentUser.sharedInstance.email, userID: CurrentUser.sharedInstance.userID, snapshotKey: CurrentUser.sharedInstance.snapshotKey, location: location)
             updatedRLMUser.photoURL = photoURL
             updatedRLMUser.profileImage = UIImageJPEGRepresentation(self.pickedProfileImage, 1.0)
             self.updateUserProfileInRealm(updatedRLMUser)
-
             self.updateUserProfileOnFirebase(photoURL)
             self.delegate?.updateCurrentUserSingleton(CurrentUser.sharedInstance.photoURL, name: name, location: location, profileImage: self.pickedProfileImage)
             self.dismissViewControllerAnimated(true, completion: nil)
         }
+        
     }
     
     @IBAction func cancelSelected(sender: AnyObject) {

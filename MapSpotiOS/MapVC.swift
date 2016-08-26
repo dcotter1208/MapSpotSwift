@@ -32,6 +32,10 @@ class MapVC: UIViewController, MKMapViewDelegate, CLLocationManagerDelegate, Han
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        
+        print(RLMDBManager().realm?.configuration.fileURL)
+        
         setupMapView()
         getUserLocation()
         setUpSearchControllerWithSearchTable()
@@ -76,6 +80,25 @@ class MapVC: UIViewController, MKMapViewDelegate, CLLocationManagerDelegate, Han
         self.mapView.camera = newCamera
     }
     
+    //MARK: Realm Methods
+    func writeUserToRealm(user: Object) {
+        let realmDBManager = RLMDBManager()
+        realmDBManager.realm?.beginWrite()
+        realmDBManager.realm?.add(user)
+        
+        do {
+            try realmDBManager.realm?.commitWrite()
+        } catch let error as NSError {
+            print(error)
+        }
+    }
+    
+    func createRLMUser(name: String, email: String, userID: String, snapshotKey: String, location: String) -> RLMUser {
+        let rlmUser = RLMUser()
+        rlmUser.createUser(name, email: email, userID: userID, snapshotKey: snapshotKey, location: location)
+        return rlmUser
+    }
+    
     //MARK: Helper Methods
     
     /*
@@ -98,7 +121,7 @@ class MapVC: UIViewController, MKMapViewDelegate, CLLocationManagerDelegate, Han
                     print(error?.description)
                     return
                 }
-                
+    
                 self.getCurrentUserProfileWithRealm({
                     (results) in
                     guard results.isEmpty == false else {
@@ -193,44 +216,65 @@ class MapVC: UIViewController, MKMapViewDelegate, CLLocationManagerDelegate, Han
     
     /*
      Sets the CurrentUser Singleton from a FIRDataSnapshot.
+     It also uses that FIRDataSnapShot to write the userprofile to Realm.
  */
     func setCurrentUserProfileWithFirebaseSnapshot(snapshot: FIRDataSnapshot) {
         for child in snapshot.children {
             guard let
-                name = child.value["name"],
-                email = child.value["email"],
-                photoURL = child.value["profilePhotoURL"],
-                userID = child.value["userID"],
-                location = child.value["location"] else {
+                name = child.value["name"] as? String,
+                email = child.value["email"] as? String,
+                photoURL = child.value["profilePhotoURL"] as? String,
+                userID = child.value["userID"] as? String,
+                location = child.value["location"] as? String else {
             return
             }
             
-            guard photoURL != nil else {
-            CurrentUser.sharedInstance.setCurrentUserProperties(name as! String,
-                                                                location: location as! String,
-                                                                email: email as! String,
+            guard photoURL != "" else {
+            CurrentUser.sharedInstance.setCurrentUserProperties(name,
+                                                                location: location,
+                                                                email: email,
                                                                 photoURL: "",
-                                                                userID: userID as! String,
+                                                                userID: userID,
                                                                 snapshotKey: child.key as String)
+            let user = createRLMUser(name,
+                                     email: email,
+                                     userID: userID,
+                                     snapshotKey: child.key as String,
+                                     location: location)
+            writeUserToRealm(user)
                 return
             }
-            CurrentUser.sharedInstance.setCurrentUserProperties(name as! String,
-                                                                location: location as! String,
-                                                                email: email as! String,
-                                                                photoURL: photoURL as! String,
-                                                                userID: userID as! String,
-                                                                snapshotKey: child.key as String)
+            CurrentUser.sharedInstance.setCurrentUserProperties(name,
+                                                                location: location,
+                                                                email: email,
+                                                                photoURL: photoURL,
+                                                                userID: userID,
+                                                                snapshotKey: child.key)
+            CurrentUser.sharedInstance.location = location
             
-            downloadProfileImageWithAlamoFire(photoURL as! String, completion: { (image) in
+            downloadProfileImageWithAlamoFire(photoURL, completion: { (image) in
                 CurrentUser.sharedInstance.profileImage = image
+                let user = self.createRLMUser(name,
+                    email: email,
+                    userID: userID,
+                    snapshotKey: child.key as String,
+                    location: location)
+                user.photoURL = photoURL
+                user.profileImage = UIImageJPEGRepresentation(image, 1.0)
+                self.writeUserToRealm(user)
             })
-            guard location != nil else {return}
-            CurrentUser.sharedInstance.location = location as! String
         }
     }
     
+    //Takes results from Realm and sets the CurrentUser Singleton.
     func setCurrentUserProfileWithRealmResults(realmResults:Results<RLMUser>) {
-        CurrentUser.sharedInstance.setCurrentUserProperties(realmResults[0].name, location: realmResults[0].location, email: realmResults[0].email, photoURL: realmResults[0].photoURL, userID: realmResults[0].userID, snapshotKey: realmResults[0].snapshotKey)
+        CurrentUser.sharedInstance.setCurrentUserProperties(realmResults[0].name,
+                                                            location: realmResults[0].location,
+                                                            email: realmResults[0].email,
+                                                            photoURL: realmResults[0].photoURL,
+                                                            userID: realmResults[0].userID,
+                                                            snapshotKey: realmResults[0].snapshotKey)
+        
         guard let profileImageData = realmResults[0].profileImage else {return}
         CurrentUser.sharedInstance.profileImage = UIImage(data: profileImageData)
     }
