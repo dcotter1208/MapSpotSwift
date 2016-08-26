@@ -36,26 +36,15 @@ class MapVC: UIViewController, MKMapViewDelegate, CLLocationManagerDelegate, Han
         getUserLocation()
         setUpSearchControllerWithSearchTable()
         setUpSearchBar()
-        getCurrentUserProfileWithRealm()
-//        queryCurrentUserFromFirebase()
-        
-        
-        
-        let dbManager = RLMDBManager()
-        print(dbManager.realm?.configuration.fileURL)
-        
-        
-        if let userID = FIRAuth.auth()?.currentUser?.uid {
-            dbManager.getCurrentUserFromRealm(userID)
+        //if the user profile doesn't exist in Realm then we query Firebase for the data.
+        getCurrentUserProfileWithRealm {
+            (results) in
+            guard results.isEmpty == false else {
+                self.queryCurrentUserProfileFromFirebase()
+                return
+            }
+            self.setCurrentUserProfileWithRealmResults(results)
         }
-        
-//        
-//        let dbManager = RLMDBManager()
-//        let user = RLMUser()
-//        user.createUser("Donovan", email: "cotter@yahoo.com", userID: "34234225235", snapshotKey: "jasfja888jsj", location: "", photoURL: nil, profileImage: nil)
-//        dbManager.writeObject(user)
-        
-        
     }
 
     override func didReceiveMemoryWarning() {
@@ -109,9 +98,15 @@ class MapVC: UIViewController, MKMapViewDelegate, CLLocationManagerDelegate, Han
                     print(error?.description)
                     return
                 }
-                //Check for the current user profile in realm. if it isn't in realm the query from Firebase and write to realm. This solves the edge case for if someone logs into the account and did not register for the account on the phone their signing in on.
-//                self.queryCurrentUserFromFirebase()
-                //Set Current User Singleton Here
+                
+                self.getCurrentUserProfileWithRealm({
+                    (results) in
+                    guard results.isEmpty == false else {
+                        self.queryCurrentUserProfileFromFirebase()
+                     return
+                    }
+                    self.setCurrentUserProfileWithRealmResults(results)
+                })
             })
         }
         let signup = UIAlertAction(title: "Sign Up", style: .Default) {
@@ -173,20 +168,20 @@ class MapVC: UIViewController, MKMapViewDelegate, CLLocationManagerDelegate, Han
      them in anonymously. If they are then it makes a query to Realm for
      the Current User's UserProfile and sets the CurrentUser Singleton.
  */
-    func getCurrentUserProfileWithRealm() {
+    func getCurrentUserProfileWithRealm(completion:(results: Results<RLMUser>) -> Void) {
         guard FIRAuth.auth()?.currentUser != nil else {
             loginWithAnonymousUser()
         return
         }
-        
         let realmManager = RLMDBManager()
         guard let userID = FIRAuth.auth()?.currentUser?.uid else {
             return
         }
-        let results = realmManager.getCurrentUserFromRealm(userID)
-        setCurrentUserProfileWithRealmResults(results)
+        
+        completion(results: realmManager.getCurrentUserFromRealm(userID))
     }
     
+    //Queries Firebase for the current user's profile.
     func queryCurrentUserProfileFromFirebase() {
         let firebaseOp = FirebaseOperation()
         let query = firebaseOp.firebaseDatabaseRef.ref.child("users").queryOrderedByChild("userID").queryEqualToValue(FIRAuth.auth()?.currentUser?.uid)
@@ -200,7 +195,6 @@ class MapVC: UIViewController, MKMapViewDelegate, CLLocationManagerDelegate, Han
      Sets the CurrentUser Singleton from a FIRDataSnapshot.
  */
     func setCurrentUserProfileWithFirebaseSnapshot(snapshot: FIRDataSnapshot) {
-        
         for child in snapshot.children {
             guard let
                 name = child.value["name"],
@@ -212,17 +206,25 @@ class MapVC: UIViewController, MKMapViewDelegate, CLLocationManagerDelegate, Han
             }
             
             guard photoURL != nil else {
-            CurrentUser.sharedInstance.setCurrentUserProperties(name as! String, location: location as! String, email: email as! String, photoURL: "", userID: userID as! String, snapshotKey: child.key as String)
+            CurrentUser.sharedInstance.setCurrentUserProperties(name as! String,
+                                                                location: location as! String,
+                                                                email: email as! String,
+                                                                photoURL: "",
+                                                                userID: userID as! String,
+                                                                snapshotKey: child.key as String)
                 return
             }
-            CurrentUser.sharedInstance.setCurrentUserProperties(name as! String, location: location as! String, email: email as! String, photoURL: photoURL as! String, userID: userID as! String, snapshotKey: child.key as String)
+            CurrentUser.sharedInstance.setCurrentUserProperties(name as! String,
+                                                                location: location as! String,
+                                                                email: email as! String,
+                                                                photoURL: photoURL as! String,
+                                                                userID: userID as! String,
+                                                                snapshotKey: child.key as String)
+            
             downloadProfileImageWithAlamoFire(photoURL as! String, completion: { (image) in
                 CurrentUser.sharedInstance.profileImage = image
             })
-            
-            guard location != nil else {
-                return
-            }
+            guard location != nil else {return}
             CurrentUser.sharedInstance.location = location as! String
         }
     }
