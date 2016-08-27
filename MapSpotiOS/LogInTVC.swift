@@ -163,7 +163,7 @@ class LogInTVC: UITableViewController {
         FIRAuth.auth()?.signInWithEmail(email, password: password, completion: { (firebaseUser, error) in
             guard error == nil else {
                 self.failedLogInAlert()
-                print(error)
+                print(error?.code)
                 return
             }
             self.getCurrentUserProfileWithRealm({
