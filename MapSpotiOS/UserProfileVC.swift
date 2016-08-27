@@ -26,11 +26,11 @@ class UserProfileVC: UIViewController, UpdateCurrentUserDelegate {
 
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
-        
     }
 
     func updateCurrentUserSingleton(photoURL: String, name: String, location: String, profileImage: UIImage?) {
         self.name.text = name
+        self.locationLabel.text = location
         guard profileImage != nil else {
             return
         }
@@ -38,38 +38,15 @@ class UserProfileVC: UIViewController, UpdateCurrentUserDelegate {
     }
 
     func setUserProfile() {
-        guard FIRAuth.auth()?.currentUser?.anonymous == false else {
-            name.text = "Anonymous"
-            anonymouslyLoggedIn = true
-            profileImage.image = UIImage(named: "default_user")
-        return
-        }
-        
         name.text = CurrentUser.sharedInstance.name
-        guard CurrentUser.sharedInstance.photoURL != "" else {
-            profileImage.image = UIImage(named: "default_user")
-            return
-        }
-        
+        locationLabel.text = CurrentUser.sharedInstance.location
         guard CurrentUser.sharedInstance.profileImage != nil else {
-            downloadProfileImageWithAlamoFire(CurrentUser.sharedInstance.photoURL, completion: { (image) in
-                self.profileImage.image = image
-                CurrentUser.sharedInstance.profileImage = image
-            })
+            profileImage.image = UIImage(named: "default_user")
             return
         }
         profileImage.image = CurrentUser.sharedInstance.profileImage
     }
-    
-    func downloadProfileImageWithAlamoFire(photoURL: String, completion:(image:UIImage) -> Void) {
-        Alamofire.request(.GET, photoURL)
-            .responseImage { response in
-            if let image = response.result.value {
-                completion(image: image)
-            }
-        }
-    }
-    
+
     /*
      Logs a user in anonymously. Called in queryCurrentUserFromFirebase func
      if a user isn't already logged into their own account.
@@ -86,12 +63,20 @@ class UserProfileVC: UIViewController, UpdateCurrentUserDelegate {
             }
         })
     }
+    
+    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
+        if segue.identifier == "editProfileSegue" {
+            let destinationVC = segue.destinationViewController as! EditProfileTVC
+            destinationVC.delegate = self
+        }
+    }
 
     @IBAction func signOut(sender: AnyObject) {
         do {
             try FIRAuth.auth()?.signOut()
             loginWithAnonymousUser({
                 (anonymousUserID) in
+                CurrentUser.sharedInstance.resetProperties()
                 self.performSegueWithIdentifier("unwindToMapSegue", sender: self)
             })
         } catch {

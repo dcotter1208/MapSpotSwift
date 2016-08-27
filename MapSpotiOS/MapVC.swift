@@ -12,6 +12,7 @@ import FirebaseDatabase
 import FirebaseAuth
 import Alamofire
 import AlamofireImage
+import RealmSwift
 
 protocol HandleMapSearch: class {
     func dropPinAtSearchedLocation(placemark:MKPlacemark)
@@ -31,12 +32,22 @@ class MapVC: UIViewController, MKMapViewDelegate, CLLocationManagerDelegate, Han
     
     override func viewDidLoad() {
         super.viewDidLoad()
+
+        print(RLMDBManager().realm?.configuration.fileURL)
+
         setupMapView()
         getUserLocation()
         setUpSearchControllerWithSearchTable()
         setUpSearchBar()
-        queryCurrentUserFromFirebase()
-
+        //if the user profile doesn't exist in Realm then we query Firebase for the data.
+        getCurrentUserProfileWithRealm {
+            (results) in
+            guard results.isEmpty == false else {
+                self.queryCurrentUserProfileFromFirebase()
+                return
+            }
+            self.setCurrentUserProfileWithRealmResults(results)
+        }
     }
 
     override func didReceiveMemoryWarning() {
@@ -47,11 +58,7 @@ class MapVC: UIViewController, MKMapViewDelegate, CLLocationManagerDelegate, Han
     //MARK: Map Methods
 
     func setupMapView() {
-        
-        guard let mapView = mapView else {
-            return
-        }
-
+        guard let mapView = mapView else {return}
         mapView.delegate = self
         mapView.showsPointsOfInterest = false
         mapView.showsUserLocation = true
@@ -68,43 +75,27 @@ class MapVC: UIViewController, MKMapViewDelegate, CLLocationManagerDelegate, Han
         self.mapView.camera = newCamera
     }
     
-    //MARK: Helper Methods
-    
-    /*
-     Presents options for login(logs user in), signup(presenets SignUpTVC)
-     or continuing to use the app as an Anonymous user.
- */
-    func presentLoginSignUpOption(title: String, message: String?) {
-        let alertController = UIAlertController(title: title, message: message, preferredStyle: .Alert)
-        alertController.addTextFieldWithConfigurationHandler { (emailTF) in
-            emailTF.placeholder = "email"
+    //MARK: Realm Methods
+    func writeUserToRealm(user: Object) {
+        let realmDBManager = RLMDBManager()
+        realmDBManager.realm?.beginWrite()
+        realmDBManager.realm?.add(user)
+        
+        do {
+            try realmDBManager.realm?.commitWrite()
+        } catch let error as NSError {
+            print(error)
         }
-        alertController.addTextFieldWithConfigurationHandler { (passwordTF) in
-            passwordTF.placeholder = "password"
-        }
-        let login = UIAlertAction(title: "Login", style: .Default) {
-            (action) in
-            FIRAuth.auth()?.signInWithEmail(alertController.textFields![0].text!, password: alertController.textFields![1].text!, completion: { (user, error) in
-                guard error == nil else {
-                    self.presentLoginSignUpOption("Login Failed", message: "Please check your email & password and try again.")
-                    print(error?.description)
-                    return
-                }
-                self.queryCurrentUserFromFirebase()
-                //Set Current User Singleton Here
-            })
-        }
-        let signup = UIAlertAction(title: "Sign Up", style: .Default) {
-            (action) in
-            self.istantiateSignUpOrUserProfileVC("SignUpNavController")
-        }
-        let continueAsAnonymous = UIAlertAction(title: "Continue Anonymously", style: .Default, handler: nil)
-        alertController.addAction(login)
-        alertController.addAction(signup)
-        alertController.addAction(continueAsAnonymous)
-        self.presentViewController(alertController, animated: true, completion: nil)
     }
     
+    func createRLMUser(name: String, email: String, userID: String, snapshotKey: String, location: String) -> RLMUser {
+        let rlmUser = RLMUser()
+        rlmUser.createUser(name, email: email, userID: userID, snapshotKey: snapshotKey, location: location)
+        return rlmUser
+    }
+    
+    //MARK: Helper Methods
+
     /*
      Used to istantiate the SignUPTVC or the
      UserProfileTVC (if the user is already logged in).
@@ -112,10 +103,6 @@ class MapVC: UIViewController, MKMapViewDelegate, CLLocationManagerDelegate, Han
     func istantiateSignUpOrUserProfileVC(viewControllerToIstantiate: String) {
         let storyboard = UIStoryboard(name: "Main", bundle: nil)
         let istantiatedVC = storyboard.instantiateViewControllerWithIdentifier(viewControllerToIstantiate)
-        
-        guard viewControllerToIstantiate != "EditProfileTVC" else {
-            return
-        }
         self.presentViewController(istantiatedVC, animated: true, completion: nil)
     }
     
@@ -126,14 +113,14 @@ class MapVC: UIViewController, MKMapViewDelegate, CLLocationManagerDelegate, Han
  */
     func checkForCurrentlyLoggedInUser() {
         guard FIRAuth.auth()?.currentUser?.anonymous == false else {
-            presentLoginSignUpOption("Login", message: "Don't have an account? Sign Up")
+            istantiateSignUpOrUserProfileVC("LogInNavController")
             return
         }
         guard FIRAuth.auth()?.currentUser == nil else {
             performSegueWithIdentifier("showUserProfileSegue", sender: self)
             return
         }
-        presentLoginSignUpOption("Login", message: "Don't have an account? Sign Up")
+        istantiateSignUpOrUserProfileVC("LogInNavController")
     }
     
     /*
@@ -150,51 +137,92 @@ class MapVC: UIViewController, MKMapViewDelegate, CLLocationManagerDelegate, Han
     
     /*
      Checks if a user is already logged in. If they aren't then it logs
-     them in anonymously. If they are then it makes a query to Firebase for
+     them in anonymously. If they are then it makes a query to Realm for
      the Current User's UserProfile and sets the CurrentUser Singleton.
  */
-    func queryCurrentUserFromFirebase() {
+    func getCurrentUserProfileWithRealm(completion:(results: Results<RLMUser>) -> Void) {
         guard FIRAuth.auth()?.currentUser != nil else {
             loginWithAnonymousUser()
         return
         }
+        let realmManager = RLMDBManager()
+        guard let userID = FIRAuth.auth()?.currentUser?.uid else {return}
+        completion(results: realmManager.getCurrentUserFromRealm(userID))
+    }
+    
+    //Queries Firebase for the current user's profile.
+    func queryCurrentUserProfileFromFirebase() {
         let firebaseOp = FirebaseOperation()
         let query = firebaseOp.firebaseDatabaseRef.ref.child("users").queryOrderedByChild("userID").queryEqualToValue(FIRAuth.auth()?.currentUser?.uid)
         firebaseOp.queryFirebaseForChildWithConstrtaints(query, firebaseDataEventType: .Value, observeSingleEventType: true) {
             (result) in
-            self.setCurrentUserProfile(result)
+            self.setCurrentUserProfileWithFirebaseSnapshot(result)
         }
     }
     
     /*
      Sets the CurrentUser Singleton from a FIRDataSnapshot.
+     It also uses that FIRDataSnapShot to write the userprofile to Realm.
  */
-    func setCurrentUserProfile(snapshot: FIRDataSnapshot) {
-        
+    func setCurrentUserProfileWithFirebaseSnapshot(snapshot: FIRDataSnapshot) {
         for child in snapshot.children {
             guard let
-                name = child.value["name"],
-                email = child.value["email"],
-                photoURL = child.value["profilePhotoURL"],
-                userID = child.value["userID"],
-                location = child.value["location"] else {
+                name = child.value["name"] as? String,
+                email = child.value["email"] as? String,
+                photoURL = child.value["profilePhotoURL"] as? String,
+                userID = child.value["userID"] as? String,
+                location = child.value["location"] as? String else {
             return
             }
             
-            guard photoURL != nil else {
-            CurrentUser.sharedInstance.setCurrentUserProperties(name as! String, email: email as! String, photoURL: "", userID: userID as! String, snapshotKey: child.key as String)
+            guard photoURL != "" else {
+            CurrentUser.sharedInstance.setCurrentUserProperties(name,
+                                                                location: location,
+                                                                email: email,
+                                                                photoURL: "",
+                                                                userID: userID,
+                                                                snapshotKey: child.key as String)
+            let user = createRLMUser(name,
+                                     email: email,
+                                     userID: userID,
+                                     snapshotKey: child.key as String,
+                                     location: location)
+            writeUserToRealm(user)
                 return
             }
-            CurrentUser.sharedInstance.setCurrentUserProperties(name as! String, email: email as! String, photoURL: photoURL as! String, userID: userID as! String, snapshotKey: child.key as String)
-            downloadProfileImageWithAlamoFire(photoURL as! String, completion: { (image) in
-                CurrentUser.sharedInstance.profileImage = image
-            })
+            CurrentUser.sharedInstance.setCurrentUserProperties(name,
+                                                                location: location,
+                                                                email: email,
+                                                                photoURL: photoURL,
+                                                                userID: userID,
+                                                                snapshotKey: child.key)
+            CurrentUser.sharedInstance.location = location
             
-            guard location != nil else {
-                return
-            }
-            CurrentUser.sharedInstance.location = location as! String
+            downloadProfileImageWithAlamoFire(photoURL, completion: { (image) in
+                CurrentUser.sharedInstance.profileImage = image
+                let user = self.createRLMUser(name,
+                    email: email,
+                    userID: userID,
+                    snapshotKey: child.key as String,
+                    location: location)
+                user.photoURL = photoURL
+                user.profileImage = UIImageJPEGRepresentation(image, 1.0)
+                self.writeUserToRealm(user)
+            })
         }
+    }
+    
+    //Takes results from Realm and sets the CurrentUser Singleton.
+    func setCurrentUserProfileWithRealmResults(realmResults:Results<RLMUser>) {
+        CurrentUser.sharedInstance.setCurrentUserProperties(realmResults[0].name,
+                                                            location: realmResults[0].location,
+                                                            email: realmResults[0].email,
+                                                            photoURL: realmResults[0].photoURL,
+                                                            userID: realmResults[0].userID,
+                                                            snapshotKey: realmResults[0].snapshotKey)
+        
+        guard let profileImageData = realmResults[0].profileImage else {return}
+        CurrentUser.sharedInstance.profileImage = UIImage(data: profileImageData)
     }
     
     /*

@@ -47,12 +47,26 @@ class CurrentUser: NSObject {
         
     }
     
-    func setCurrentUserProperties(name: String, email: String, photoURL: String, userID: String, snapshotKey: String) {
+    func setCurrentUserProperties(name: String, location: String, email: String, photoURL: String, userID: String, snapshotKey: String) {
         self.name = name
+        self.location = location
         self.email = email
         self.photoURL = photoURL
         self.userID = userID
         self.snapshotKey = snapshotKey
     }
+    
+    func resetProperties() {
+        self.name = ""
+        self.email = ""
+        self.photoURL = ""
+        self.userID = ""
+        self.snapshotKey = ""
+        self.location = ""
+        self.profileImage = nil
+    }
 
 }
+
+
+
