@@ -58,11 +58,7 @@ class MapVC: UIViewController, MKMapViewDelegate, CLLocationManagerDelegate, Han
     //MARK: Map Methods
 
     func setupMapView() {
-        
-        guard let mapView = mapView else {
-            return
-        }
-
+        guard let mapView = mapView else {return}
         mapView.delegate = self
         mapView.showsPointsOfInterest = false
         mapView.showsUserLocation = true
@@ -99,49 +95,7 @@ class MapVC: UIViewController, MKMapViewDelegate, CLLocationManagerDelegate, Han
     }
     
     //MARK: Helper Methods
-    
-    /*
-     Presents options for login(logs user in), signup(presenets SignUpTVC)
-     or continuing to use the app as an Anonymous user.
- */
-    func presentLoginSignUpOption(title: String, message: String?) {
-        let alertController = UIAlertController(title: title, message: message, preferredStyle: .Alert)
-        alertController.addTextFieldWithConfigurationHandler { (emailTF) in
-            emailTF.placeholder = "email"
-        }
-        alertController.addTextFieldWithConfigurationHandler { (passwordTF) in
-            passwordTF.placeholder = "password"
-        }
-        let login = UIAlertAction(title: "Login", style: .Default) {
-            (action) in
-            FIRAuth.auth()?.signInWithEmail(alertController.textFields![0].text!, password: alertController.textFields![1].text!, completion: { (user, error) in
-                guard error == nil else {
-                    self.presentLoginSignUpOption("Login Failed", message: "Please check your email & password and try again.")
-                    print(error?.description)
-                    return
-                }
-                self.getCurrentUserProfileWithRealm({
-                    (results) in
-                    guard results.isEmpty == false else {
-                        self.queryCurrentUserProfileFromFirebase()
-                     return
-                    }
-                    self.setCurrentUserProfileWithRealmResults(results)
-                    alertController.dismissViewControllerAnimated(true, completion: nil)
-                })
-            })
-        }
-        let signup = UIAlertAction(title: "Sign Up", style: .Default) {
-            (action) in
-            self.istantiateSignUpOrUserProfileVC("SignUpNavController")
-        }
-        let continueAsAnonymous = UIAlertAction(title: "Continue Anonymously", style: .Default, handler: nil)
-        alertController.addAction(login)
-        alertController.addAction(signup)
-        alertController.addAction(continueAsAnonymous)
-        self.presentViewController(alertController, animated: true, completion: nil)
-    }
-    
+
     /*
      Used to istantiate the SignUPTVC or the
      UserProfileTVC (if the user is already logged in).

@@ -187,4 +187,10 @@ class LogInTVC: UITableViewController {
     @IBAction func continueAnonymously(sender: AnyObject) {
         self.dismissViewControllerAnimated(true, completion: nil)
     }
+    
+    
+    @IBAction func cancelPressed(sender: AnyObject) {
+        self.dismissViewControllerAnimated(true, completion: nil)
+    }
+    
 }

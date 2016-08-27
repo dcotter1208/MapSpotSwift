@@ -75,6 +75,12 @@ class SignUpTVC: UITableViewController, UINavigationControllerDelegate, UIImageP
         }
     }
     
+    func istantiateViewController(viewControllerToIstantiate: String) {
+        let storyboard = UIStoryboard(name: "Main", bundle: nil)
+        let istantiatedVC = storyboard.instantiateViewControllerWithIdentifier(viewControllerToIstantiate)
+        self.presentViewController(istantiatedVC, animated: true, completion: nil)
+    }
+    
     //MARK: Camera Methods
     
     func imagePickerController(picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : AnyObject]) {
@@ -228,7 +234,7 @@ class SignUpTVC: UITableViewController, UINavigationControllerDelegate, UIImageP
                 self.createUserProfile(name, email: email, userID: user.uid, profilePhotoURL: nil)
                 let user = self.createRLMUser(name, email: email, userID: user.uid, snapshotKey: self.snapshotKey, location: "")
                 self.writeUserToRealm(user)
-                self.dismissViewControllerAnimated(true, completion: nil)
+                self.istantiateViewController("MapVC")
                 return
             }
             
@@ -241,7 +247,7 @@ class SignUpTVC: UITableViewController, UINavigationControllerDelegate, UIImageP
                 user.photoURL = photoURL
                 user.profileImage = UIImageJPEGRepresentation(profileImage, 1.0)
                 self.writeUserToRealm(user)
-                self.dismissViewControllerAnimated(true, completion: nil)
+                self.istantiateViewController("MapVC")
             })
         })
     }
