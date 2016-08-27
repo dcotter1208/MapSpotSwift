@@ -408,8 +408,32 @@
                                             </constraints>
                                         </tableViewCellContentView>
                                     </tableViewCell>
+                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" id="KD2-dm-sVz">
+                                        <rect key="frame" x="0.0" y="214" width="600" height="44"/>
+                                        <autoresizingMask key="autoresizingMask"/>
+                                        <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="KD2-dm-sVz" id="9IW-y9-Si2">
+                                            <rect key="frame" x="0.0" y="0.0" width="600" height="44"/>
+                                            <autoresizingMask key="autoresizingMask"/>
+                                            <subviews>
+                                                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="YfR-of-Ip9">
+                                                    <rect key="frame" x="226" y="6" width="149" height="30"/>
+                                                    <constraints>
+                                                        <constraint firstAttribute="width" constant="149" id="r7t-PH-ZlM"/>
+                                                    </constraints>
+                                                    <state key="normal" title="Log In"/>
+                                                    <connections>
+                                                        <action selector="logInPressed:" destination="96F-Cw-tEs" eventType="touchUpInside" id="AmP-kS-eI3"/>
+                                                    </connections>
+                                                </button>
+                                            </subviews>
+                                            <constraints>
+                                                <constraint firstItem="YfR-of-Ip9" firstAttribute="centerX" secondItem="9IW-y9-Si2" secondAttribute="centerX" id="j0K-xT-KkE"/>
+                                                <constraint firstItem="YfR-of-Ip9" firstAttribute="centerY" secondItem="9IW-y9-Si2" secondAttribute="centerY" id="mOe-eL-Oxq"/>
+                                            </constraints>
+                                        </tableViewCellContentView>
+                                    </tableViewCell>
                                     <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" rowHeight="75" id="QQy-ST-Wkc">
-                                        <rect key="frame" x="0.0" y="214" width="600" height="75"/>
+                                        <rect key="frame" x="0.0" y="258" width="600" height="75"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="QQy-ST-Wkc" id="Eks-DU-Y3x">
                                             <rect key="frame" x="0.0" y="0.0" width="600" height="75"/>
@@ -428,6 +452,9 @@
                                                 <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="dZf-z0-DbD">
                                                     <rect key="frame" x="208" y="36" width="184" height="30"/>
                                                     <state key="normal" title="Sign Up"/>
+                                                    <connections>
+                                                        <action selector="signUpPressed:" destination="96F-Cw-tEs" eventType="touchUpInside" id="3nh-Vb-Cop"/>
+                                                    </connections>
                                                 </button>
                                             </subviews>
                                             <constraints>
@@ -440,7 +467,7 @@
                                         </tableViewCellContentView>
                                     </tableViewCell>
                                     <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" rowHeight="74" id="JHr-wS-Lae">
-                                        <rect key="frame" x="0.0" y="289" width="600" height="74"/>
+                                        <rect key="frame" x="0.0" y="333" width="600" height="74"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="JHr-wS-Lae" id="1Tu-27-8OX">
                                             <rect key="frame" x="0.0" y="0.0" width="600" height="74"/>
@@ -452,6 +479,9 @@
                                                         <constraint firstAttribute="width" constant="205" id="sWg-0G-Ldc"/>
                                                     </constraints>
                                                     <state key="normal" title="Continue Anonymously"/>
+                                                    <connections>
+                                                        <action selector="continueAnonymously:" destination="96F-Cw-tEs" eventType="touchUpInside" id="drB-iC-9yC"/>
+                                                    </connections>
                                                 </button>
                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="or" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="TJo-sm-Lwv">
                                                     <rect key="frame" x="279" y="8" width="42" height="21"/>
@@ -483,6 +513,10 @@
                     <navigationItem key="navigationItem" id="aHM-8e-HRe">
                         <barButtonItem key="leftBarButtonItem" systemItem="cancel" id="lmD-mP-rQg"/>
                     </navigationItem>
+                    <connections>
+                        <outlet property="emailTF" destination="9aY-Xz-MRW" id="hJr-8h-yqn"/>
+                        <outlet property="passwordTF" destination="pk7-pa-duv" id="JuY-wk-NK1"/>
+                    </connections>
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="t2g-s8-aSL" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
